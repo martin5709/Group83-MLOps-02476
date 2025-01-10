@@ -13,7 +13,7 @@ class Generator(nn.Module):
             nn.Linear(latent_space_size, 512),
             nn.ReLU(),
             nn.Linear(512, height*width*channels),
-            nn.Sigmoid() # Force output to be standardised between 0 and 1
+            nn.Tanh() # Force output to be standardised between -1 and 1
         )
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:

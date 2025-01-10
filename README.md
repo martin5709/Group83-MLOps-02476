@@ -5,7 +5,7 @@ Martin Moos Hansen, Leire Hernandez Martinez, Mikkel Koefoed Lindtner, Lucas Ped
 
 
 ## Project description
-The brief summary of this project is to train a Generative Adversarial Network ([GAN](https://dl.acm.org/doi/abs/10.1145/3422622)), on the [CIFAR-100 dataset](https://www.cs.toronto.edu/~kriz/cifar.html), using [Albumentations](https://albumentations.ai/) for data augmentation. The goal is to generate images close to those in the dataset.
+The brief summary of this project is to train a Generative Adversarial Network ([GAN](https://dl.acm.org/doi/abs/10.1145/3422622)), on the [CIFAR-100 dataset](https://www.cs.toronto.edu/~kriz/cifar.html), using [Albumentations](https://albumentations.ai/) for data augmentation as our third-party package. The goal is to generate images close to those in the dataset.
 
 The implementation will be done in [PyTorch](https://pytorch.org/). For educational purposes we would like to implement the models ourselves, since we have not yet worked with GANs. So we will be exploiting the PyTorch framework to build this model, and not just borrow a pre-trained model.
 

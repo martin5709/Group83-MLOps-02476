@@ -1,14 +1,13 @@
 import torch
 from torch import nn
 
-latent_space_size = 1000
 height = 32
 width = 32
 channels = 3
 
 class Generator(nn.Module):
     """GAN Generator Component"""
-    def __init__(self) -> None:
+    def __init__(self, latent_space_size) -> None:
         super().__init__()
         self.gen_model = nn.Sequential( # Very simple for now (just linear layers)
             nn.Linear(latent_space_size, 512),

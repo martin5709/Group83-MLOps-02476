@@ -47,6 +47,16 @@ def test(ctx: Context) -> None:
     ctx.run("coverage report -m", echo=True, pty=not WINDOWS)
 
 @task
+def cnn_detect(ctx: Context) -> None:
+    """Run CNN detection."""
+    ctx.run(f"python CNNDetection/demo.py -f CNNDetection/examples/real.png -m CNNDetection/weights/blur_jpg_prob0.5.pth --use_cpu", echo=True, pty=not WINDOWS)
+
+@task
+def cnn_detect_dir(ctx: Context) -> None:
+    """Run CNN detection."""
+    ctx.run(f"python CNNDetection/demo_dir.py -d CNNDetection/examples/realfakedir -m CNNDetection/weights/blur_jpg_prob0.5.pth --use_cpu", echo=True, pty=not WINDOWS)
+
+@task
 def docker_build(ctx: Context, progress: str = "plain") -> None:
     """Build docker images."""
     ctx.run(

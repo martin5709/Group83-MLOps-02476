@@ -44,19 +44,20 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
     for epoch in range(epochs):
         for i, real_images in enumerate(main_dataloader):
             real_images = real_images.to(DEVICE)
+            temp_batch_size = len(real_images)
 
             # Part 1 -- Give the discriminator a head start against the generator
             for j in range(k_discriminator):
                 # Generate random latent space noise
-                z = torch.randn(batch_size, latent_space_size)
+                z = torch.randn(temp_batch_size, latent_space_size)
                 z = z.type_as(real_images)
 
                 # Turn the latent space into images
                 gen_model.eval()
                 dis_model.train()
                 fake_images = gen_model(z)
-                declare_fake = torch.zeros(batch_size, 1).to(DEVICE)
-                declare_real = torch.ones(batch_size, 1).to(DEVICE)
+                declare_fake = torch.zeros(temp_batch_size, 1).to(DEVICE)
+                declare_real = torch.ones(temp_batch_size, 1).to(DEVICE)
 
                 # Provide real images
                 dis_opt.zero_grad()
@@ -79,11 +80,11 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
             dis_model.eval()
 
             # Generate random latent space noise
-            z = torch.randn(batch_size, latent_space_size)
+            z = torch.randn(temp_batch_size, latent_space_size)
             z = z.type_as(real_images)
 
             # Tell the discriminator that the data is real, optimise the generator for tricking it.
-            declare_real = torch.ones(batch_size, 1).to(DEVICE)
+            declare_real = torch.ones(temp_batch_size, 1).to(DEVICE)
 
             gen_opt.zero_grad()
             loss = gen_loss(dis_model(gen_model(z)), declare_real)

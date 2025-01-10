@@ -1,11 +1,11 @@
 # MLOps Project 2025, group 83
 
 Participating students:
-Martin Moos Hansen (s203822), Leire Hernandez Martinez (s243266), Mikkel Koefoed Lindtner (s205421), Lucas Pedersen and Rita Saraiva.
+Martin Moos Hansen (s203822), Leire Hernandez Martinez (s243266), Mikkel Koefoed Lindtner (s205421), Lucas Pedersen  and Rita Saraiva (s205717).
 
 
 ## Project description
-This project aims to to train a Generative Adversarial Network ([GAN](https://dl.acm.org/doi/abs/10.1145/3422622)), on the [CIFAR-100 dataset](https://www.cs.toronto.edu/~kriz/cifar.html). The goal is to generate images close to those in the dataset.The implementation will be done with [PyTorch](https://pytorch.org/). More over, we shall use [Albumentations](https://albumentations.ai/) for data augmentation as our third-party package.
+This project aims to to train a Generative Adversarial Network ([GAN](https://dl.acm.org/doi/abs/10.1145/3422622)), on the [CIFAR-100 dataset](https://www.cs.toronto.edu/~kriz/cifar.html). The goal is to generate images close to those in the dataset. The implementation will be done with [PyTorch](https://pytorch.org/). Moreover, we shall use [Albumentations](https://albumentations.ai/) for data augmentation as our third-party package.
 
 Given the fact that none of group member have worked with GANs before, we shall attempt to implement the models ourselves. As such, we will be exploiting the PyTorch framework to build this model, and thus not start with a pre-trained model. Our plan is to use the implementation of a GAN, presented in the course [02456](https://github.com/DeepLearningDTU/02456-deep-learning-with-PyTorch/blob/master/7_Unsupervised/7.3-generative-adversarial-networks.ipynb) Deep Learning, as a baseline model. In this manner, we can more easily verify that our data preprocessing has been implemented correctly. Note that this model was originally implemented for the MNIST dataset, so it is reasonable to claim that a more complicated model will be needed. Thus in subsequent iterations, we will be adapting it to fit the new dataset. 
 

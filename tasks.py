@@ -54,8 +54,12 @@ def docker_build(ctx: Context, progress: str = "plain") -> None:
         echo=True,
         pty=not WINDOWS
     )
+    
+@task
+def docker_run(ctx: Context) -> None:
+    """Run docker container."""
     ctx.run(
-        f"docker build -t api:latest . -f dockerfiles/api.dockerfile --progress={progress}",
+        "docker run -it --rm -v $(pwd)/data/processed:/data/processed -v $(pwd)/models:/models train:latest",
         echo=True,
         pty=not WINDOWS
     )

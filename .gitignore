@@ -179,3 +179,4 @@ cython_debug/
 data/
 CNNDetection/weights/blur_jpg_prob0.1.pth
 CNNDetection/weights/blur_jpg_prob0.5.pth
+wandb/

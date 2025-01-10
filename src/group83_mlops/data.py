@@ -52,7 +52,7 @@ class MyDataset(Dataset):
         torch.save(images_tensor, f"{output_folder}/train_images.pt")
 
 
-def preprocess(raw_data_path: Path, output_data_path: Path) -> None:
+def preprocess_data(raw_data_path: Path, output_data_path: Path) -> None:
     print("Preprocessing data...")
     dataset = MyDataset(raw_data_path)
     dataset.preprocess(output_data_path)
@@ -67,7 +67,7 @@ def cifar100() -> tuple[torch.utils.data.Dataset]:
     return dataset
 
 if __name__ == "__main__":
-    typer.run(preprocess)
+    typer.run(preprocess_data)
     # typer.run(cifar100())
     dataloader = DataLoader(typer.run(cifar100()), batch_size=64, shuffle=True, num_workers=2)
     print(next(iter(dataloader)))

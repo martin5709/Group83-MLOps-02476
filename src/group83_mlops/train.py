@@ -42,7 +42,7 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
 
     # GAN Paper: https://arxiv.org/pdf/1406.2661 -- See the algorithm on page 4
     for epoch in range(epochs):
-        for i, (real_images, target) in enumerate(main_dataloader):
+        for i, real_images in enumerate(main_dataloader):
             real_images = real_images.to(DEVICE)
 
             # Part 1 -- Give the discriminator a head start against the generator
@@ -55,8 +55,8 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 gen_model.eval()
                 dis_model.train()
                 fake_images = gen_model(z)
-                declare_fake = torch.zeros(batch_size).to(DEVICE)
-                declare_real = torch.ones(batch_size).to(DEVICE)
+                declare_fake = torch.zeros(batch_size, 1).to(DEVICE)
+                declare_real = torch.ones(batch_size, 1).to(DEVICE)
 
                 # Provide real images
                 dis_opt.zero_grad()
@@ -69,6 +69,10 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 loss = dis_loss(dis_model(fake_images), declare_fake)
                 loss.backward()
                 dis_opt.step()
+
+                # Get idea of loss
+                if i % 100 == 0 and j == k_discriminator - 1:
+                    print(f"Epoch {epoch}, iter {i}, dis loss: {loss.item()}")
             
             # Part 2 -- Update the generator to try to trick the discriminator
             gen_model.train()
@@ -79,12 +83,16 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
             z = z.type_as(real_images)
 
             # Tell the discriminator that the data is real, optimise the generator for tricking it.
-            declare_real = torch.ones(batch_size).to(DEVICE)
+            declare_real = torch.ones(batch_size, 1).to(DEVICE)
 
             gen_opt.zero_grad()
             loss = gen_loss(dis_model(gen_model(z)), declare_real)
             loss.backward()
             gen_opt.step()
+
+            # Get idea of loss
+            if i % 100 == 0:
+                print(f"Epoch {epoch}, iter {i}, gen loss: {loss.item()}")
 
 
 

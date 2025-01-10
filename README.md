@@ -1,6 +1,18 @@
-# group83_mlops
+# MLOps Project 2025, group 83
 
-MLOps Group 83 Project
+Participating students:
+Martin Moos Hansen, Leire Hernandez Martinez, Mikkel Koefoed Lindtner, Lucas Pedersen and Rita Saraiva.
+
+
+## Project description
+The brief goal of this project is to train a Generative Adversarial Network ([GAN](https://dl.acm.org/doi/abs/10.1145/3422622)), on the [CIFAR-100 dataset](https://www.cs.toronto.edu/~kriz/cifar.html), using [Albumentations](https://albumentations.ai/) for data augmentation.
+
+The implementation will be done in [PyTorch](https://pytorch.org/). For educational purposes we would like to implement the models ourselves, since we have not yet worked with GANs. So we will be exploiting the PyTorch framework to build this model, and not just borrow a pre-trained model.
+
+Our plan so far is to use the implementation of a GAN, which was presented in the Deep Learning course [02456](https://github.com/DeepLearningDTU/02456-deep-learning-with-PyTorch/blob/master/7_Unsupervised/7.3-generative-adversarial-networks.ipynb), as inpiration for a baseline model. Of course altering it to fit the new dataset. Hopefully this model can serve as inspiration for a very minimal product, which should help us verify that our data preprocessing has been implemented correctly. This model is originally implemented for the MNIST numbers dataset, so we will presumably need to create a more complicated model at some point.
+
+The dataset is ~160 MB of data. In initial tests, this should be fine to thattest our models work. To make the project more interesting, and artificially create a larger dataset, we'll use the [Albumentations](https://albumentations.ai/) to do data augmentation.
+
 
 ## Project structure
 

@@ -117,6 +117,5 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 wandb.log({"Generated_image": [wandb.Image(image_for_logging[0])]})
 
 
-
 if __name__ == "__main__":
     typer.run(train)

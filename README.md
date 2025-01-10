@@ -1,7 +1,7 @@
 # MLOps Project 2025, group 83
 
 Participating students:
-Martin Moos Hansen (s203822), Leire Hernandez Martinez (s243266), Mikkel Koefoed Lindtner (s205421), Lucas Pedersen (s203768) and Rita Saraiva.
+Martin Moos Hansen (s203822), Leire Hernandez Martinez (s243266), Mikkel Koefoed Lindtner (s205421), Lucas Pedersen (s203768) and Rita Saraiva (s205717).
 
 
 ## Project description

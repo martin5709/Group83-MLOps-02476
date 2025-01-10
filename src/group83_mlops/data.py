@@ -2,6 +2,8 @@ from pathlib import Path
 
 import typer
 from torch.utils.data import Dataset
+import torchvision
+import torchvision.transforms as transforms
 
 
 class MyDataset(Dataset):
@@ -18,6 +20,14 @@ class MyDataset(Dataset):
 
     def preprocess(self, output_folder: Path) -> None:
         """Preprocess the raw data and save it to the output folder."""
+        transform = transforms.Compose([transforms.ToTensor()])
+
+        train_dataset = torchvision.datasets.CIFAR100(root='./data/raw', train=True, download=True, transform=transform)
+        test_dataset = torchvision.datasets.CIFAR100(root='./data/raw', train=False, download=True, transform=transform)
+        
+
+
+
 
 def preprocess(raw_data_path: Path, output_folder: Path) -> None:
     print("Preprocessing data...")

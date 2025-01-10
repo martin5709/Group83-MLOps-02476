@@ -22,9 +22,10 @@ class MyDataset(Dataset):
         """Preprocess the raw data and save it to the output folder."""
         transform = transforms.Compose([transforms.ToTensor()])
 
-        train_dataset = torchvision.datasets.CIFAR100(root='./data/raw', train=True, download=True, transform=transform)
-        test_dataset = torchvision.datasets.CIFAR100(root='./data/raw', train=False, download=True, transform=transform)
+        train_dataset = torchvision.datasets.CIFAR100(root=f'{output_folder}', train=True, download=True, transform=transform)
+        test_dataset = torchvision.datasets.CIFAR100(root=f'{output_folder}', train=False, download=True, transform=transform)
         
+        print(next(iter(train_dataset)))
 
 
 

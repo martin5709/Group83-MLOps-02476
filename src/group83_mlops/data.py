@@ -67,7 +67,7 @@ def cifar100() -> tuple[torch.utils.data.Dataset]:
     return dataset
 
 if __name__ == "__main__":
-    # typer.run(preprocess)
-    typer.run(cifar100())
+    typer.run(preprocess)
+    # typer.run(cifar100())
     dataloader = DataLoader(typer.run(cifar100()), batch_size=64, shuffle=True, num_workers=2)
     print(next(iter(dataloader)))

@@ -29,3 +29,6 @@ Use `python demo.py -f </path_to/image.png> -m <path_to/blur_jpg_prob0.5.pth>`
 
 Use of CNNDetect on image folder
 `python demo_dir.py -d </path_to_folder> -m <path_to/blur_jpg_prob0.5.pth>`
+
+## Reference
+[CNNDetection](https://github.com/PeterWang512/CNNDetection)

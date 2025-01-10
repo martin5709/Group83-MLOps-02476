@@ -1,5 +1,6 @@
 import torch
 import typer
+import wandb
 from torch import nn
 from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100
@@ -40,6 +41,18 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
     dis_loss = nn.BCELoss()
     dis_opt = torch.optim.Adam(dis_model.parameters(), lr=learning_rate)
 
+    wandb.init(
+        project = 'group83-MLOps-02476',
+        config = {
+            "learning_rate": learning_rate,
+            "batch_size": batch_size,
+            "epochs": epochs,
+            "k_discriminator": k_discriminator,
+            "random_state": random_state,
+            "latent_space_size": latent_space_size
+        }
+    )
+
     # GAN Paper: https://arxiv.org/pdf/1406.2661 -- See the algorithm on page 4
     for epoch in range(epochs):
         for i, real_images in enumerate(main_dataloader):
@@ -61,15 +74,16 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
 
                 # Provide real images
                 dis_opt.zero_grad()
-                loss = dis_loss(dis_model(real_images), declare_real)
-                loss.backward()
-                dis_opt.step()
-
+                real_loss = dis_loss(dis_model(real_images), declare_real)
+                
                 # Provide fake images
-                dis_opt.zero_grad()
-                loss = dis_loss(dis_model(fake_images), declare_fake)
+                fake_loss = dis_loss(dis_model(fake_images), declare_fake)
+                loss = (real_loss + fake_loss) / 2
                 loss.backward()
                 dis_opt.step()
+                wandb.log({"Discriminator_real_loss": loss.item()})
+                wandb.log({"Discriminator_fake_loss": loss.item()})
+                wandb.log({"Discriminator_loss": loss.item()})
 
                 # Get idea of loss
                 if i % 100 == 0 and j == k_discriminator - 1:
@@ -89,11 +103,18 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
             gen_opt.zero_grad()
             loss = gen_loss(dis_model(gen_model(z)), declare_real)
             loss.backward()
-            gen_opt.step()
+            gen_opt.step()  
+            wandb.log({"Generator_loss": loss.item()})
 
             # Get idea of loss
             if i % 100 == 0:
                 print(f"Epoch {epoch}, iter {i}, gen loss: {loss.item()}")
+                z_for_logging = torch.randn(1, latent_space_size)
+                z_for_logging = z_for_logging.type_as(real_images)
+                image_for_logging = gen_model(z_for_logging)
+                # view image in 2d
+                image_for_logging = image_for_logging.view(3, 32, 32).detach().cpu().numpy()
+                wandb.log({"Generated_image": [wandb.Image(image_for_logging[0])]})
 
 
 

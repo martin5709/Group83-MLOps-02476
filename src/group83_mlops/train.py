@@ -43,6 +43,9 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
     dis_loss = nn.BCELoss()
     dis_opt = torch.optim.Adam(dis_model.parameters(), lr=learning_rate)
 
+    # Setup wandb for logging
+    wandb.login()
+
     run = wandb.init(
         project = 'group83-MLOps-02476',
         name = 'wandb with model logging',

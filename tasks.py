@@ -69,7 +69,7 @@ def docker_build(ctx: Context, progress: str = "plain") -> None:
 def docker_run(ctx: Context) -> None:
     """Run docker container."""
     ctx.run(
-        "docker run -it --rm -v $(pwd)/data/processed:/data/processed -v $(pwd)/models:/models train:latest",
+        'docker run -it --rm -v $(pwd)/data/processed:/data/processed -v $(pwd)/models:/models --env-file .env train:latest',
         echo=True,
         pty=not WINDOWS
     )

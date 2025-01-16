@@ -35,7 +35,12 @@ def preprocess_data(ctx: Context) -> None:
     ctx.run(f"python src/{PROJECT_NAME}/data.py data/raw data/processed", echo=True, pty=not WINDOWS)
 
 @task
-def train(
+def train_hydra(ctx: Context) -> None:
+    """Train model."""
+    ctx.run(f"python src/{PROJECT_NAME}/train.py train-hydra", echo=True, pty=not WINDOWS)
+
+@task
+def train_wandb(
     ctx: Context,
     gencol: str = "Simple_Generators",
     discol: str = "Simple_Discriminators",
@@ -59,7 +64,7 @@ def train(
         latent_space_size (int): Dimensionality of the latent space for generator inputs.
     """
     command = (
-        f"python src/{PROJECT_NAME}/train.py "
+        f"python src/{PROJECT_NAME}/train.py train-wandb "
         f"--gencol {gencol} "
         f"--discol {discol} "
         f"--learning-rate {lr} "

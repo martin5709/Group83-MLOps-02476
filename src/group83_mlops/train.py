@@ -1,14 +1,81 @@
 import torch
 import typer
 import wandb
+import hydra
 from torch import nn
 from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
+app = typer.Typer()
 
-def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators") -> None:
+@app.command()
+def train_hydra(experiment: str = "exp1") -> None:
+    config_location = "../../configs/experiments" # Basically, it will by default go here, then it will default to default, unless otherwise specified here.
+    with hydra.initialize(version_base=None, config_path=config_location):
+        cfg = hydra.compose(config_name=experiment)
+        print(cfg)
+        batch_size = cfg.hyperparameters.batch_size
+        epochs = cfg.hyperparameters.epochs
+        k_discriminator = cfg.hyperparameters.k_discriminator
+        latent_space_size = cfg.hyperparameters.latent_space_size
+        learning_rate = cfg.hyperparameters.learning_rate
+        random_state = cfg.hyperparameters.random_state
+        train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, wandb_active=False)
+    
+@app.command()
+def train_wandb(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol: str = "Simple_Generators", discol: str = "Simple_Discriminators") -> None:
+    train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, gencol=gencol, discol=discol, wandb_active=True)
+
+def setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, wandb_active: bool = False):
+    if wandb_active:
+        # Setup logging for WandB
+        wandb.login()
+
+        return wandb.init(
+            project = 'group83-MLOps-02476',
+            name = 'wandb with model logging',
+            config = {
+                "learning_rate": learning_rate,
+                "batch_size": batch_size,
+                "epochs": epochs,
+                "k_discriminator": k_discriminator,
+                "random_state": random_state,
+                "latent_space_size": latent_space_size
+            }
+        )
+    else:
+        return None
+
+def finalise_wandb(wandb_active, run, tg, td, gencol, discol):
+    if wandb_active:
+        art_gen = wandb.Artifact(
+            name = "Simple_Generators",
+            type = "model",
+            description = "Our first very simple model",
+            metadata = dict(run.config)
+        )
+        art_gen.add_file(local_path = tg)
+        run.link_artifact(art_gen, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{gencol}")
+
+        art_dis = wandb.Artifact(
+                name = "SimpleDiscirminator",
+                type = "model",
+                description = "Our first very simple model",
+                metadata = dict(run.config)
+        )
+        art_dis.add_file(local_path = td)
+        run.link_artifact(
+            art_dis, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{discol}"
+        )
+        run.finish()
+
+def logging_loss(wandb_active, dictlog : dict[any, any]):
+    if wandb_active:
+        wandb.log(dictlog)
+
+def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False) -> None:
     """Training step for the GAN.
     
     Each epoch is made of steps, which is some fraction of the total dataset.
@@ -20,6 +87,7 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
     k_discriminator -- How many extra rounds may the discriminator train per step relative to the generator?
     random_state -- What is the random state that you'd like to fix for the system?
     latent_space_size -- How big is the latent space for the Generator?
+    wandb_active -- Is wandb logging to be used or not?
     """
     
     # Fix random state to ensure reproducability.
@@ -40,21 +108,7 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
     dis_loss = nn.BCELoss()
     dis_opt = torch.optim.Adam(dis_model.parameters(), lr=learning_rate)
 
-    # Setup wandb for logging
-    wandb.login()
-
-    run = wandb.init(
-        project = 'group83-MLOps-02476',
-        name = 'wandb with model logging',
-        config = {
-            "learning_rate": learning_rate,
-            "batch_size": batch_size,
-            "epochs": epochs,
-            "k_discriminator": k_discriminator,
-            "random_state": random_state,
-            "latent_space_size": latent_space_size
-        }
-    )
+    run = setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, wandb_active)
 
     # GAN Paper: https://arxiv.org/pdf/1406.2661 -- See the algorithm on page 4
     for epoch in range(epochs):
@@ -84,9 +138,9 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 loss = (real_loss + fake_loss) / 2
                 loss.backward()
                 dis_opt.step()
-                wandb.log({"Discriminator_real_loss": loss.item()})
-                wandb.log({"Discriminator_fake_loss": loss.item()})
-                wandb.log({"Discriminator_loss": loss.item()})
+                logging_loss(wandb_active, {"Discriminator_real_loss": loss.item()})
+                logging_loss(wandb_active, {"Discriminator_fake_loss": loss.item()})
+                logging_loss(wandb_active, {"Discriminator_loss": loss.item()})
 
                 # Get idea of loss
                 if i % 100 == 0 and j == k_discriminator - 1:
@@ -107,7 +161,7 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
             loss = gen_loss(dis_model(gen_model(z)), declare_real)
             loss.backward()
             gen_opt.step()  
-            wandb.log({"Generator_loss": loss.item()})
+            logging_loss(wandb_active, {"Generator_loss": loss.item()})
 
             # Get idea of loss
             if i % 100 == 0:
@@ -117,7 +171,8 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 image_for_logging = gen_model(z_for_logging)
                 # view image in 2d
                 image_for_logging = image_for_logging.view(3, 32, 32).detach().cpu().numpy()
-                wandb.log({"Generated_image": [wandb.Image(image_for_logging)]})
+                image_for_logging = image_for_logging.transpose(1, 2, 0)
+                logging_loss(wandb_active, {"Generated_image": [wandb.Image(image_for_logging)]})
 
 
     trained_path = "models"
@@ -130,27 +185,7 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
 
     print(f"Saved generator to {trained_path} as {trained_generator_name}")
     print(f"Saved discriminator to {trained_path} as {trained_discriminator_name}")
-
-    art_gen = wandb.Artifact(
-            name = "Simple_Generators",
-            type = "model",
-            description = "Our first very simple model",
-            metadata = dict(run.config)
-    )
-    art_gen.add_file(local_path = tg)
-    run.link_artifact(art_gen, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{gencol}")
-
-    art_dis = wandb.Artifact(
-            name = "SimpleDiscirminator",
-            type = "model",
-            description = "Our first very simple model",
-            metadata = dict(run.config)
-    )
-    art_dis.add_file(local_path = td)
-    run.link_artifact(
-        art_dis, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{discol}"
-    )
-    run.finish()
+    finalise_wandb(wandb_active, run, tg, td, gencol, discol)
 
 if __name__ == "__main__":
-    typer.run(train)
+    app()

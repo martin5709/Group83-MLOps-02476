@@ -7,6 +7,9 @@ from torch.utils.data import Dataset, DataLoader,TensorDataset
 import torchvision
 import torchvision.transforms as transforms
 
+RAW_DATA_PATH="./data/raw"
+OUT_DATA ="./data/processed"
+
 class MyDataset(Dataset):
     """My custom dataset."""
     def __init__(self, raw_data_path: Path) -> None:

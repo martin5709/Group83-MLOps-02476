@@ -41,15 +41,27 @@ class MyDataset(Dataset):
         print("<<preprocessing>>")
         #Normally these two lines would be enough, but we are trying "good practices" so I will store them unnecessarily.
         train_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=True, download=True, transform=transform)
+        
         dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False, num_workers=2)
         # print(next(iter(dataloader)))
         images = []
-        for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 images"):
+        for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 train images"):
             images.append(image)
 
         images_tensor = torch.cat(images,dim=0)
 
         torch.save(images_tensor, f"{output_folder}/train_images.pt")
+
+        # Do the same for the test data set
+        test_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=False, download=True, transform=transform)
+        dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_workers=2)
+        images = []
+        for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 test images"):
+            images.append(image)
+
+        images_tensor = torch.cat(images,dim=0)
+
+        torch.save(images_tensor, f"{output_folder}/test_images.pt")
 
 
 def preprocess_data(raw_data_path: Path, output_data_path: Path) -> None:

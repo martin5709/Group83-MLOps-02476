@@ -12,6 +12,9 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
       - name: Check not overlapping
         run: |
           # The line below, applies grep twice on each file to get the package names (without version number).

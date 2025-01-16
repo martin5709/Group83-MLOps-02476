@@ -171,6 +171,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
                 image_for_logging = gen_model(z_for_logging)
                 # view image in 2d
                 image_for_logging = image_for_logging.view(3, 32, 32).detach().cpu().numpy()
+                image_for_logging = image_for_logging.transpose(1, 2, 0)
                 logging_loss(wandb_active, {"Generated_image": [wandb.Image(image_for_logging)]})
 
 

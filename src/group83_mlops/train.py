@@ -6,6 +6,8 @@ from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+DISCOL = "Simple_Discriminators"
+GENCOL = "Simple_Generators"
 
 app = typer.Typer()
 
@@ -41,8 +43,9 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
     dis_loss = nn.BCELoss()
     dis_opt = torch.optim.Adam(dis_model.parameters(), lr=learning_rate)
 
-    wandb.init(
+    run = wandb.init(
         project = 'group83-MLOps-02476',
+        name = 'wandb with model logging',
         config = {
             "learning_rate": learning_rate,
             "batch_size": batch_size,
@@ -116,6 +119,38 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 image_for_logging = image_for_logging.view(3, 32, 32).detach().cpu().numpy()
                 wandb.log({"Generated_image": [wandb.Image(image_for_logging[0])]})
 
+
+    trained_path = "models"
+    trained_generator_name = "simple_generator.pth"
+    trained_discriminator_name = "simple_discriminator.pth"
+    tg = trained_path + "/" + trained_generator_name
+    td = trained_path + "/" + trained_discriminator_name
+    torch.save(gen_model.state_dict(), tg)
+    torch.save(dis_model.state_dict(), td)
+
+    print(f"Saved generator to {trained_path} as {trained_generator_name}")
+    print(f"Saved discriminator to {trained_path} as {trained_discriminator_name}")
+
+    art_gen = wandb.Artifact(
+            name = "Simple_Generators",
+            type = "model",
+            description = "Our first very simple model",
+            metadata = dict(run.config)
+    )
+    art_gen.add_file(local_path = tg)
+    run.link_artifact(art_gen, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{GENCOL}")
+
+    art_dis = wandb.Artifact(
+            name = "SimpleDiscirminator",
+            type = "model",
+            description = "Our first very simple model",
+            metadata = dict(run.config)
+    )
+    art_dis.add_file(local_path = td)
+    run.link_artifact(
+        art_dis, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{DISCOL}"
+    )
+    run.finish()
 
 if __name__ == "__main__":
     typer.run(train)

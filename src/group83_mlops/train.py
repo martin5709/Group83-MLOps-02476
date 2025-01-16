@@ -7,11 +7,8 @@ from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
-DISCOL = "Simple_Discriminators"
-GENCOL = "Simple_Generators"
 
 app = typer.Typer()
-
 
 @app.command()
 def train_hydra(experiment: str = "exp1") -> None:
@@ -48,7 +45,7 @@ def setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state
     else:
         return None
 
-def finalise_wandb(wandb_active, run, tg, td):
+def finalise_wandb(wandb_active, run, tg, td, gencol, discol):
     if wandb_active:
         art_gen = wandb.Artifact(
             name = "Simple_Generators",
@@ -57,7 +54,7 @@ def finalise_wandb(wandb_active, run, tg, td):
             metadata = dict(run.config)
         )
         art_gen.add_file(local_path = tg)
-        run.link_artifact(art_gen, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{GENCOL}")
+        run.link_artifact(art_gen, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{gencol}")
 
         art_dis = wandb.Artifact(
                 name = "SimpleDiscirminator",
@@ -67,7 +64,7 @@ def finalise_wandb(wandb_active, run, tg, td):
         )
         art_dis.add_file(local_path = td)
         run.link_artifact(
-            art_dis, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{DISCOL}"
+            art_dis, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{discol}"
         )
         run.finish()
 
@@ -75,7 +72,7 @@ def logging_loss(wandb_active, dictlog : dict[any, any]):
     if wandb_active:
         wandb.log(dictlog)
 
-def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, wandb_active: bool = False) -> None:
+def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False) -> None:
     """Training step for the GAN.
     
     Each epoch is made of steps, which is some fraction of the total dataset.
@@ -92,6 +89,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     
     # Fix random state to ensure reproducability.
     torch.manual_seed(random_state)
+
 
     # Setup dataloading from data.py
     main_dataset = cifar100()
@@ -170,7 +168,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
                 image_for_logging = gen_model(z_for_logging)
                 # view image in 2d
                 image_for_logging = image_for_logging.view(3, 32, 32).detach().cpu().numpy()
-                logging_loss(wandb_active, {"Generated_image": [wandb.Image(image_for_logging[0])]})
+                logging_loss(wandb_active, {"Generated_image": [wandb.Image(image_for_logging)]})
 
 
     trained_path = "models"
@@ -183,7 +181,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
 
     print(f"Saved generator to {trained_path} as {trained_generator_name}")
     print(f"Saved discriminator to {trained_path} as {trained_discriminator_name}")
-    finalise_wandb(wandb_active, run, tg, td)
+    finalise_wandb(wandb_active, run, tg, td, gencol, discol)
 
 if __name__ == "__main__":
     app()

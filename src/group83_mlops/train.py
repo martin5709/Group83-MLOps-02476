@@ -1,11 +1,27 @@
 import torch
 import typer
 import wandb
+import os
 from torch import nn
+from torchvision.transforms import ToPILImage
 from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100
 
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+
+to_pil = ToPILImage() # For saving images for use in CNNDetection
+output_dir = "CNNDetection/tmp"
+
+import sys
+sys.path.append('CNNDetection/networks')
+from resnet import resnet50
+
+cnn_det_model = resnet50(num_classes=1)
+state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu')
+cnn_det_model.load_state_dict(state_dict['model'])
+cnn_det_model.to(DEVICE)
+print(cnn_det_model)
 
 
 def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators") -> None:
@@ -114,7 +130,12 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 image_for_logging = gen_model(z_for_logging)
                 # view image in 2d
                 image_for_logging = image_for_logging.view(3, 32, 32).detach().cpu().numpy()
+                image_for_logging = image_for_logging.transpose(1, 2, 0)
                 wandb.log({"Generated_image": [wandb.Image(image_for_logging)]})
+                image = to_pil(image_for_logging)
+                
+                output_path = os.path.join(output_dir, f"fake.png")
+                image.save(output_path)
 
 
     trained_path = "models"
@@ -148,6 +169,10 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
         art_dis, f"s203768-dtu-org/wandb-registry-MLOps_Project_Models/{discol}"
     )
     run.finish()
+
+    # Remove the large models from local machine
+    os.remove(tg)
+    os.remove(td)
 
 if __name__ == "__main__":
     typer.run(train)

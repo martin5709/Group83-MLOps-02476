@@ -182,3 +182,4 @@ CNNDetection/weights/blur_jpg_prob0.5.pth
 wandb/
 models/
 artifacts/
+CNNDetection/tmp

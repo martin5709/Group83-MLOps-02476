@@ -13,6 +13,8 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.ba
 to_pil = ToPILImage() # For saving images for use in CNNDetection
 output_dir = "CNNDetection/tmp"
 
+
+# Loading the model from CNNDetect
 import sys
 sys.path.append('CNNDetection/networks')
 sys.path.append('CNNDetection')
@@ -60,7 +62,7 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
 
     run = wandb.init(
         project = 'group83-MLOps-02476',
-        name = 'wandb with model logging',
+        name = f'{gencol} and {discol}',
         config = {
             "learning_rate": learning_rate,
             "batch_size": batch_size,
@@ -104,8 +106,8 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 wandb.log({"Discriminator_loss": loss.item()})
 
                 # Get idea of loss
-                if i % 100 == 0 and j == k_discriminator - 1:
-                    print(f"Epoch {epoch}, iter {i}, dis loss: {loss.item()}")
+                # if i % 100 == 0 and j == k_discriminator - 1:
+                #     print(f"Epoch {epoch}, iter {i}, dis loss: {loss.item()}")
             
             # Part 2 -- Update the generator to try to trick the discriminator
             gen_model.train()
@@ -139,7 +141,6 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 output_path = os.path.join(output_dir, f"fake.png")
                 image.save(output_path)
                 prob = get_synth_prob(cnn_det_model, output_path, DEVICE)
-                print(f"Probability of image being synthetic: {prob}")
                 wandb.log({"Synthetic prob": prob})
 
 
@@ -178,6 +179,7 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
     # Remove the large models from local machine
     os.remove(tg)
     os.remove(td)
+    os.remove(output_path)
 
 if __name__ == "__main__":
     typer.run(train)

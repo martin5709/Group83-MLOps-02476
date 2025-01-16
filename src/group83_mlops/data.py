@@ -7,8 +7,6 @@ from torch.utils.data import Dataset, DataLoader,TensorDataset
 import torchvision
 import torchvision.transforms as transforms
 
-from torch.profiler import profile, ProfilerActivity
-
 class MyDataset(Dataset):
     """My custom dataset."""
     def __init__(self, raw_data_path: Path) -> None:
@@ -37,41 +35,21 @@ class MyDataset(Dataset):
         print("<<preprocessing>>")
         train_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=True, download=True, transform=transform)
 
+        # dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False, num_workers=2)
+        dataloader = TensorDataset(torch.tensor(train_dataset.data).float() / 255.0 , torch.tensor(train_dataset.targets) )
 
-        print('Prior to improvements')
-        with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
-            dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False, num_workers=2)
-            
-            images = []
-            
-            for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 train images"):
-                images.append(image)
+        images = []  # Initialize an empty list to store images
 
-            images_tensor = torch.cat(images,dim=0)
+        for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 train images"):
+            images.append(image)  # Append each image tensor to the list
 
-            torch.save(images_tensor, f"{output_folder}/train_images.pt")
-        print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=100))
-        prof.export_chrome_trace("trace_prior.json")
+        # Concatenate all image tensors along the 0th dimension (batch dimension)
+        images_tensor = torch.cat(images, dim=0)
 
-        print('After improvements')
-        with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
-            # dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False, num_workers=2)
-            dataloader = TensorDataset(torch.tensor(train_dataset.data).float() / 255.0 , torch.tensor(train_dataset.targets) )
+        # Save the resulting tensor to a file
+        torch.save(images_tensor, f"{output_folder}/train_images.pt")
 
-            images = []  # Initialize an empty list to store images
-
-            for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 train images"):
-                images.append(image)  # Append each image tensor to the list
-
-            # Concatenate all image tensors along the 0th dimension (batch dimension)
-            images_tensor = torch.cat(images, dim=0)
-
-            # Save the resulting tensor to a file
-            torch.save(images_tensor, f"{output_folder}/train_images.pt")
-        print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=100))
-        prof.export_chrome_trace("trace_posterior.json")
-
-        # Do the same for the test data set
+        ### Do the same for the test data set
         test_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=False, download=True, transform=transform)
         # dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_workers=2)
         dataloader = TensorDataset(torch.tensor(test_dataset.data).float() / 255.0 , torch.tensor(test_dataset.targets) )

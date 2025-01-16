@@ -1,3 +1,5 @@
+https://github.com/martin5709/Group83-MLOps-02476/commit/f164b38ed527986f3c0e013b6554dc2b49e11c97
+
 (my_environment) rita_saraiva@LAPTOP-NS2IUM1C:/mnt/c/Users/ritux/OneDrive - Danmarks Tekniske Universitet/Skrivebord/02476 - Machine Learning Operations/Group83-MLOps-02476$ python src/group83_mlops/data.py data/raw data/processed
 2.5.1+cu124
 Preprocessing data...

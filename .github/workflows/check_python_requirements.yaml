@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  check:
+  check_python:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

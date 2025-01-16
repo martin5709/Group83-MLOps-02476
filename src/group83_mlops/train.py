@@ -15,13 +15,15 @@ output_dir = "CNNDetection/tmp"
 
 import sys
 sys.path.append('CNNDetection/networks')
+sys.path.append('CNNDetection')
 from resnet import resnet50
+from fun import get_synth_prob
 
 cnn_det_model = resnet50(num_classes=1)
 state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu')
 cnn_det_model.load_state_dict(state_dict['model'])
 cnn_det_model.to(DEVICE)
-print(cnn_det_model)
+
 
 
 def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators") -> None:
@@ -136,6 +138,9 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 
                 output_path = os.path.join(output_dir, f"fake.png")
                 image.save(output_path)
+                prob = get_synth_prob(cnn_det_model, output_path, DEVICE)
+                print(f"Probability of image being synthetic: {prob}")
+                wandb.log({"Synthetic prob": prob})
 
 
     trained_path = "models"

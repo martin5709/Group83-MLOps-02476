@@ -3,6 +3,7 @@ import torch
 import typer
 import os
 import warnings
+import random
 
 from torchvision.transforms import ToPILImage
 from group83_mlops.data import cifar100
@@ -10,9 +11,11 @@ from group83_mlops.data import cifar100
 to_pil = ToPILImage()
 
 # Create output dirs for images
-output_dir_fake = "CNNDetection/usage/1_fake"
+tmp = "CNNDetection/tmp"
+os.makedirs(tmp, exist_ok=True)
+output_dir_fake = "CNNDetection/tmp/1_fake"
 os.makedirs(output_dir_fake, exist_ok=True)
-output_dir_real = "CNNDetection/usage/0_real"
+output_dir_real = "CNNDetection/tmp/0_real"
 os.makedirs(output_dir_real, exist_ok=True)
 
 from group83_mlops.get_model_from_artifact import get_model_from_artifact
@@ -47,13 +50,11 @@ def generate_images(gen_col:str = 'Simple_Generators', alias:str = 'latest', n_i
             output_path = os.path.join(output_dir_real, f"real_{i}.png")
             image.save(output_path)
     else:
-        for i in range(n_images):
-            image = to_pil(real_images[i,:,:,:])
+        random_idxs = random.sample(range(n_real_images), n_images)
+        for i, idx in enumerate(random_idxs):
+            image = to_pil(real_images[idx,:,:,:])
             output_path = os.path.join(output_dir_real, f"real_{i}.png")
             image.save(output_path)
-
-
-
-
+            
 if __name__ == '__main__':
     typer.run(generate_images)

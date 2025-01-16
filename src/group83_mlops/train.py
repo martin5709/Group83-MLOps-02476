@@ -30,6 +30,9 @@ def train_wandb(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int =
 
 def setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, wandb_active: bool = False):
     if wandb_active:
+        # Setup logging for WandB
+        wandb.login()
+
         return wandb.init(
             project = 'group83-MLOps-02476',
             name = 'wandb with model logging',

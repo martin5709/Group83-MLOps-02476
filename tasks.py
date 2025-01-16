@@ -142,12 +142,22 @@ def docker_build(ctx: Context, progress: str = "plain") -> None:
         echo=True,
         pty=not WINDOWS
     )
-    ctx.run(
-        f"docker build -t api:latest . -f dockerfiles/api.dockerfile --progress={progress}",
-        echo=True,
-        pty=not WINDOWS
-    )
-
+    
+@task
+def docker_run(ctx: Context) -> None:
+    """Run docker container."""
+    try:
+        ctx.run(
+            'docker run -it --rm -v $(pwd)/data/processed:/data/processed -v $(pwd)/models:/models --env-file .env train:latest',
+            echo=True,
+            pty=not WINDOWS
+        )
+    except:
+        ctx.run(
+            'docker run -it --rm -v $(pwd)/data/processed:/data/processed -v $(pwd)/models:/models train:latest',
+            echo=True,
+            pty=not WINDOWS
+        )
 # Documentation commands
 @task(dev_requirements)
 def build_docs(ctx: Context) -> None:

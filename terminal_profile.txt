@@ -1,0 +1,49 @@
+(my_environment) rita_saraiva@LAPTOP-NS2IUM1C:/mnt/c/Users/ritux/OneDrive - Danmarks Tekniske Universitet/Skrivebord/02476 - Machine Learning Operations/Group83-MLOps-02476$ python src/group83_mlops/data.py data/raw data/processed
+2.5.1+cu124
+Preprocessing data...
+Preprocess
+Prior to improvements
+<<preprocessing>>
+Files already downloaded and verified
+Processing CIFAR-100 train images: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 782/782 [00:08<00:00, 89.55it/s]
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+enumerate(DataLoader)#_MultiProcessingDataLoaderIter...        96.62%        7.796s        96.81%        7.811s       9.976ms           783  
+                                              aten::cat         3.08%     248.427ms         3.19%     257.055ms     257.055ms             1  
+                                           aten::narrow         0.04%       3.150ms         0.11%       8.628ms      11.033us           782  
+                                             aten::set_         0.10%       7.925ms         0.10%       7.925ms       5.067us          1564  
+                                            aten::empty         0.09%       6.991ms         0.09%       6.991ms       4.467us          1565  
+                                            aten::slice         0.05%       4.383ms         0.07%       5.478ms       7.006us           782  
+                                       aten::as_strided         0.01%       1.095ms         0.01%       1.095ms       1.401us           782  
+                                          aten::random_         0.00%     283.552us         0.00%     283.552us     283.552us             1  
+                                             aten::item         0.00%      34.979us         0.00%      72.475us      72.475us             1  
+                              aten::_local_scalar_dense         0.00%      37.496us         0.00%      37.496us      37.496us             1  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 8.069s
+
+After improvements
+<<preprocessing>>
+Files already downloaded and verified
+Processing CIFAR-100 train images: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50000/50000 [00:00<00:00, 59140.36it/s]
+-----------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-----------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+           aten::select        31.40%     345.300ms        36.48%     401.141ms       4.011us        100000  
+              aten::cat        30.03%     330.179ms        30.03%     330.246ms     330.246ms             1  
+               aten::to         0.00%      49.368us        17.53%     192.765ms      48.191ms             4  
+         aten::_to_copy         0.02%     218.644us        17.53%     192.715ms      64.238ms             3  
+            aten::copy_        17.49%     192.376ms        17.49%     192.376ms      64.125ms             3  
+              aten::div        15.95%     175.376ms        15.95%     175.441ms     175.441ms             1  
+       aten::as_strided         5.08%      55.848ms         5.08%      55.848ms       0.558us        100001  
+    aten::empty_strided         0.01%     120.804us         0.01%     120.804us      40.268us             3  
+           aten::narrow         0.00%      32.059us         0.01%      66.798us      66.798us             1  
+       aten::lift_fresh         0.01%      56.572us         0.01%      56.572us      28.286us             2  
+          aten::detach_         0.00%      15.144us         0.00%      42.270us      21.135us             2  
+            aten::slice         0.00%      27.669us         0.00%      34.739us      34.739us             1  
+                detach_         0.00%      27.126us         0.00%      27.126us      13.563us             2  
+            aten::empty         0.00%      24.597us         0.00%      24.597us      24.597us             1  
+-----------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 1.100s
+
+Files already downloaded and verified

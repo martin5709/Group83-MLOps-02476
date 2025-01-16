@@ -1,6 +1,6 @@
 hyperparameters:
   batch_size: 64
-  epochs: 10
+  epochs: 2
   k_discriminator: 3
   latent_space_size: 1000
   learning_rate: 0.00002

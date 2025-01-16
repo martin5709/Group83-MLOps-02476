@@ -1,3 +1,0 @@
-#config.yaml -- Specify which experiment is the default
-default:
-  - experiments: exp1

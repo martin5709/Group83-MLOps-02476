@@ -35,7 +35,12 @@ def preprocess_data(ctx: Context) -> None:
     ctx.run(f"python src/{PROJECT_NAME}/data.py data/raw data/processed", echo=True, pty=not WINDOWS)
 
 @task
-def train(
+def train_hydra(ctx: Context) -> None:
+    """Train model."""
+    ctx.run(f"python src/{PROJECT_NAME}/train.py train-hydra", echo=True, pty=not WINDOWS)
+
+@task
+def train_wandb(
     ctx: Context,
     gencol: str = "Simple_Generators",
     discol: str = "Simple_Discriminators",
@@ -59,7 +64,7 @@ def train(
         latent_space_size (int): Dimensionality of the latent space for generator inputs.
     """
     command = (
-        f"python src/{PROJECT_NAME}/train.py "
+        f"python src/{PROJECT_NAME}/train.py train-wandb "
         f"--gencol {gencol} "
         f"--discol {discol} "
         f"--learning-rate {lr} "
@@ -137,12 +142,22 @@ def docker_build(ctx: Context, progress: str = "plain") -> None:
         echo=True,
         pty=not WINDOWS
     )
-    ctx.run(
-        f"docker build -t api:latest . -f dockerfiles/api.dockerfile --progress={progress}",
-        echo=True,
-        pty=not WINDOWS
-    )
-
+    
+@task
+def docker_run(ctx: Context) -> None:
+    """Run docker container."""
+    try:
+        ctx.run(
+            'docker run -it --rm -v $(pwd)/data/processed:/data/processed -v $(pwd)/models:/models --env-file .env train:latest',
+            echo=True,
+            pty=not WINDOWS
+        )
+    except:
+        ctx.run(
+            'docker run -it --rm -v $(pwd)/data/processed:/data/processed -v $(pwd)/models:/models train:latest',
+            echo=True,
+            pty=not WINDOWS
+        )
 # Documentation commands
 @task(dev_requirements)
 def build_docs(ctx: Context) -> None:

@@ -64,7 +64,7 @@ def train_wandb(
         latent_space_size (int): Dimensionality of the latent space for generator inputs.
     """
     command = (
-        f"python src/{PROJECT_NAME}/train.py "
+        f"python src/{PROJECT_NAME}/train.py train-wandb "
         f"--gencol {gencol} "
         f"--discol {discol} "
         f"--learning-rate {lr} "

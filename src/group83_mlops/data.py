@@ -79,6 +79,14 @@ def cifar100() -> tuple[torch.utils.data.Dataset]:
     # dataset = TensorDataset(dataset)
     return dataset
 
+def cifar100_test() -> tuple[torch.utils.data.Dataset]:
+    """Return train and test datasets for cifar-100."""
+    #assumes self.data_path = data/raw/cifar-100-python
+    dataset = torch.load(f"{OUT_DATA}/test_images.pt")
+    # dataloader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
+    # dataset = TensorDataset(dataset)
+    return dataset
+
 if __name__ == "__main__":
     typer.run(preprocess_data)
     # typer.run(cifar100())

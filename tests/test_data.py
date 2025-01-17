@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 
-from src.group83_mlops.data import MyDataset,cifar100
+from src.group83_mlops.data import preprocess_data,MyDataset,cifar100
 
 
 def test_my_dataset():
@@ -10,7 +10,7 @@ def test_my_dataset():
     assert isinstance(dataset, Dataset)
 
 def test_data():
-    
+    preprocess_data("data/raw", "data/processed")
     main_dataset = cifar100()
     main_dataloader = torch.utils.data.DataLoader(main_dataset, batch_size=64)
     

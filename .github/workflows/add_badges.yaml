@@ -8,7 +8,7 @@ on:
 jobs:
   add_coverage:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,6 +36,7 @@ jobs:
       
       - name: Run and save coverage
         run: |
+          # Configure colour scheme, and get coverage results.
           OUTPUT=$(pytest --cov=group83_mlops tests/ | grep "TOTAL" | awk '{print $4}')
           COLOUR="crimson"
           if [ "$OUTPUT" -gt 94 ]; then
@@ -51,4 +52,12 @@ jobs:
           else
             COLOUR="crimson"
           fi
-          echo "{\"label\":\"coverage\",\"color\":\"$COLOUR\",\"message\":\"$OUTPUT\"}" > coveragebadge.json
+
+          # Only update file and request pr if there is a difference.
+          CHECK=$(comm -12 <(echo "{\"label\":\"coverage\",\"color\":\"$COLOUR\",\"message\":\"$OUTPUT\"}") <(cat coveragebadge.json))
+          if [ "$CHECK" -eq 0 ]
+          then
+            exit 0
+          else
+            echo "{\"label\":\"coverage\",\"color\":\"$COLOUR\",\"message\":\"$OUTPUT\"}" > coveragebadge.json
+          fi

@@ -7,32 +7,25 @@ from torch import nn
 from torchvision.transforms import ToPILImage
 from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100
-
+from resnet import resnet50
+from fun import get_synth_prob
+import sys
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
-
+app = typer.Typer()
 
 to_pil = ToPILImage() # For saving images for use in CNNDetection
 output_dir = "CNNDetection/tmp"
 
 
 # Loading the model from CNNDetect
-import sys
 sys.path.append('CNNDetection/networks')
 sys.path.append('CNNDetection')
-from resnet import resnet50
-from fun import get_synth_prob
 
 cnn_det_model = resnet50(num_classes=1)
 state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu')
 cnn_det_model.load_state_dict(state_dict['model'])
 cnn_det_model.to(DEVICE)
-
-
-
-def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators") -> None:
-
-app = typer.Typer()
 
 @app.command()
 def train_hydra(experiment: str = "exp1") -> None:
@@ -52,7 +45,7 @@ def train_hydra(experiment: str = "exp1") -> None:
 def train_wandb(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol: str = "Simple_Generators", discol: str = "Simple_Discriminators") -> None:
     train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, gencol=gencol, discol=discol, wandb_active=True)
 
-def setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, wandb_active: bool = False):
+def setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, gencol, discol, wandb_active: bool = False):
     if wandb_active:
         # Setup logging for WandB
         wandb.login()
@@ -134,7 +127,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     dis_opt = torch.optim.Adam(dis_model.parameters(), lr=learning_rate)
 
 
-    run = setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, wandb_active)
+    run = setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, gencol, discol, wandb_active)
 
 
     # GAN Paper: https://arxiv.org/pdf/1406.2661 -- See the algorithm on page 4

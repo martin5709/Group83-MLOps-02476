@@ -8,6 +8,7 @@ from torchvision.transforms import ToPILImage
 from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100
 import subprocess
+import json
 
 # Loading the model from CNNDetect
 import sys

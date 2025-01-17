@@ -1,8 +1,8 @@
-program: src/group83_mlops/train.py 
+program: src/group83_mlops/train.py
 name: Sweep-test-2
 project: group83-MLOps-02476
 method: random
-run_cap: 1
+run_cap: 20
 parameters:
   learning-rate:
     min: 0.000005
@@ -17,10 +17,8 @@ parameters:
   k-discriminator:
     values: [2, 3, 4]
 command:
-  - ${env}
   - python3
   - ${program}
-  - ${args}
-  - ${args_no_boolean_flags}
   - train-wandb
+  - ${args}
   

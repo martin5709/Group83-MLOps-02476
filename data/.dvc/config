@@ -2,3 +2,4 @@
     remote = remote_storage
 ['remote "remote_storage"']
     url = ../2e492f91-b65c-45f6-9157-f84a80361b5c
+    version_aware = true

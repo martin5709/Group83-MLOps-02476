@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - main
+  ready_for_review:
+    branches:
+      - main
 
 jobs:
   check_file:

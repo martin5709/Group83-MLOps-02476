@@ -1,0 +1,29 @@
+name: Check Non-Overlapping Python Requirements
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check_python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check not overlapping
+        run: |
+          # The line below, applies grep twice on each file to get the package names (without version number).
+          # Then, this is sorted, and compared using comm such that only overlapping lines are printed.
+          # Then, the number of characters from this output is gathered using wc --chars
+          OUTPUT=$(comm -12 <(grep -o "^.*=" requirements.txt | grep -o "^.*[^=]" | sort) <(grep -o "^.*=" requirements_dev.txt | grep -o "^.*[^=]" | sort) | wc --chars)
+          if [ "$OUTPUT" -ne 0 ]
+          then
+            exit 1
+          else
+            exit 0
+          fi

@@ -1,6 +1,5 @@
 ## Download models
-Use `cd CNNDetection`
-Call `bash CNNDetection/weights/download_weights.sh` to download models into `/weights` folder. These weights are used in the pretrained models
+Call `bash CNNDetection/weights/download_weights.sh` to download models into `CNNDetection/weights` folder. These weights are used in the pretrained models
 
 # Demo runs
 `CNNDetection` contains two demo runs. One takes the path to a single image, and returns the probability of this image being AI generated. The second takes the path to a folder, the folder should be structed with exactly two subfolders named `0_real` (containing real images) and `1_fake` (containg AI-generated images). After calling this program the model classifies all images in each folder, and displays its total accuracy across real and fake images, its accuracy on fake images and its accuracy on real images.

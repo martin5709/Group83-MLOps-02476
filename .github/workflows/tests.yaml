@@ -44,8 +44,8 @@ jobs:
           else
               echo "Coverage File Missing!"
           fi
-          coverage report -m --data-file=.coverage
-          coverage report -m --data-file=.coverage > TestCoverage.txt
+          coverage report -i -m --data-file=.coverage
+          coverage report -i -m --data-file=.coverage > TestCoverage.txt
 
       - name: Upload coverage as artifact
         uses: actions/upload-artifact@v4

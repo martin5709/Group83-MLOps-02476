@@ -1,12 +1,36 @@
 import torch
 import typer
 import wandb
+import os
 import hydra
 from torch import nn
+from torchvision.transforms import ToPILImage
 from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100
 
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+
+
+to_pil = ToPILImage() # For saving images for use in CNNDetection
+output_dir = "CNNDetection/tmp"
+
+
+# Loading the model from CNNDetect
+import sys
+sys.path.append('CNNDetection/networks')
+sys.path.append('CNNDetection')
+from resnet import resnet50
+from fun import get_synth_prob
+
+cnn_det_model = resnet50(num_classes=1)
+state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu')
+cnn_det_model.load_state_dict(state_dict['model'])
+cnn_det_model.to(DEVICE)
+
+
+
+def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators") -> None:
 
 app = typer.Typer()
 
@@ -34,16 +58,16 @@ def setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state
         wandb.login()
 
         return wandb.init(
-            project = 'group83-MLOps-02476',
-            name = 'wandb with model logging',
-            config = {
-                "learning_rate": learning_rate,
-                "batch_size": batch_size,
-                "epochs": epochs,
-                "k_discriminator": k_discriminator,
-                "random_state": random_state,
-                "latent_space_size": latent_space_size
-            }
+          project = 'group83-MLOps-02476',
+          name = f'{gencol} and {discol}',
+          config = {
+              "learning_rate": learning_rate,
+              "batch_size": batch_size,
+              "epochs": epochs,
+              "k_discriminator": k_discriminator,
+              "random_state": random_state,
+              "latent_space_size": latent_space_size
+          }
         )
     else:
         return None
@@ -76,6 +100,7 @@ def logging_loss(wandb_active, dictlog : dict[any, any]):
         wandb.log(dictlog)
 
 def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False) -> None:
+
     """Training step for the GAN.
     
     Each epoch is made of steps, which is some fraction of the total dataset.
@@ -108,7 +133,9 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     dis_loss = nn.BCELoss()
     dis_opt = torch.optim.Adam(dis_model.parameters(), lr=learning_rate)
 
+
     run = setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, wandb_active)
+
 
     # GAN Paper: https://arxiv.org/pdf/1406.2661 -- See the algorithm on page 4
     for epoch in range(epochs):
@@ -143,8 +170,8 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
                 logging_loss(wandb_active, {"Discriminator_loss": loss.item()})
 
                 # Get idea of loss
-                if i % 100 == 0 and j == k_discriminator - 1:
-                    print(f"Epoch {epoch}, iter {i}, dis loss: {loss.item()}")
+                # if i % 100 == 0 and j == k_discriminator - 1:
+                #     print(f"Epoch {epoch}, iter {i}, dis loss: {loss.item()}")
             
             # Part 2 -- Update the generator to try to trick the discriminator
             gen_model.train()
@@ -173,6 +200,13 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
                 image_for_logging = image_for_logging.view(3, 32, 32).detach().cpu().numpy()
                 image_for_logging = image_for_logging.transpose(1, 2, 0)
                 logging_loss(wandb_active, {"Generated_image": [wandb.Image(image_for_logging)]})
+                
+                image = to_pil(image_for_logging) 
+                output_path = os.path.join(output_dir, f"fake.png")
+                image.save(output_path)
+                prob = get_synth_prob(cnn_det_model, output_path, DEVICE)
+                logging_loss(wandb_active, {"Synthetic prob": prob})
+
 
 
     trained_path = "models"
@@ -186,6 +220,11 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     print(f"Saved generator to {trained_path} as {trained_generator_name}")
     print(f"Saved discriminator to {trained_path} as {trained_discriminator_name}")
     finalise_wandb(wandb_active, run, tg, td, gencol, discol)
+
+    # Remove the large models from local machine
+    os.remove(tg)
+    os.remove(td)
+    os.remove(output_path)
 
 if __name__ == "__main__":
     app()

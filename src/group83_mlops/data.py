@@ -31,15 +31,36 @@ class MyDataset(Dataset):
         #Because cifar-100 provides PIL-images we need to do .Totensor() instead of tensordataset(..)
         transform = transforms.Compose([      
                 transforms.ToTensor(),   # Convert images to PyTorch tensors
-                transforms.Normalize((0.5, 0.5, 0.5),  # Normalize to [-1, 1] for GANs
-                                    (0.5, 0.5, 0.5))
+                # From documentation: output[channel] = (input[channel] - mean[channel]) / std[channel]
+                # Normalize does the following for each channel: image = (image - mean) / std
+                # if you would like to get your image back in [0,1] range, you could use, image = ((image * std) + mean)
+                # transforms.Normalize((0.5071, 0.4867, 0.4408),(0.2675, 0.2565, 0.2761))  # Normalize to [-1, 1] for GANs
             ])  
         
+        new_mean = torch.tensor([0.5071, 0.4865, 0.4409])
+        new_mean = new_mean[None,None,None,:]
+        new_std = torch.tensor([0.2673, 0.2564, 0.2762])
+        new_std = new_std[None,None,None,:]
+
         print("<<preprocessing>>")
         train_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=True, download=True, transform=transform)
+        # raw_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=True, download=True, transform=transform)
+        # print(torch.tensor(raw_dataset.data).float().mean(dim=(0, 1, 2)) / 255, torch.tensor(raw_dataset.data).float().std(dim=(0, 1, 2)) / 255)
 
+        # raw_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=True, download=True, transform=transform)
+        # norm = transforms.Normalize(torch.tensor(raw_dataset.data).float().mean(dim=(0, 1, 2)) / 255 , torch.tensor(raw_dataset.data).float().std(dim=(0, 1, 2)) )
+        # train_dataset = norm(raw_dataset)
+
+        # dataloader = TensorDataset(train_dataset.data , train_dataset.targets )
+
+        
+        # dataloader = TensorDataset(torch.tensor(train_dataset.data) ,torch.tensor(train_dataset.targets) )
+
+        
         # dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False, num_workers=2)
         dataloader = TensorDataset(torch.tensor(train_dataset.data).float() / 255.0 , torch.tensor(train_dataset.targets) )
+
+        # Load the raw dataset with ToTensor() only
 
         images = []  # Initialize an empty list to store images
 
@@ -47,7 +68,9 @@ class MyDataset(Dataset):
             images.append(image)  # Append each image tensor to the list
 
         # Concatenate all image tensors along the 0th dimension (batch dimension)
-        images_tensor = torch.cat(images, dim=0)
+        images_tensor = torch.stack(images)
+
+        images_tensor = (images_tensor-new_mean)/new_std
 
         # Save the resulting tensor to a file
         torch.save(images_tensor, f"{output_folder}/train_images.pt")
@@ -61,7 +84,7 @@ class MyDataset(Dataset):
         for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 test images"):
             images.append(image)
 
-        images_tensor = torch.cat(images,dim=0)
+        images_tensor = torch.stack(images)
 
         torch.save(images_tensor, f"{output_folder}/test_images.pt")
 

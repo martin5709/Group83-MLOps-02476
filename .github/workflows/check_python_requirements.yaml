@@ -2,9 +2,7 @@ name: Check Non-Overlapping Python Requirements
 
 on:
   pull_request:
-    branches:
-      - main
-  ready_for_review:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - main
 

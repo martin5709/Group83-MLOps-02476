@@ -8,6 +8,7 @@ from torchvision.transforms import ToPILImage
 from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100, cifar100_test
 import subprocess
+import json
 
 # Loading the model from CNNDetect
 import sys
@@ -190,7 +191,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
             logging_loss(wandb_active, {"Generator_loss": loss.item()})
 
             # Get idea of loss
-            if i % 100 == 0:
+            if i % 1000 == 0:
                 print(f"Epoch {epoch}, iter {i}, gen loss: {loss.item()}")
                 z_for_logging = torch.randn(1, latent_space_size)
                 z_for_logging = z_for_logging.type_as(real_images)

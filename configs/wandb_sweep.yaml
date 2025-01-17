@@ -1,5 +1,5 @@
 program: src/group83_mlops/train.py
-name: Sweep
+name: Sweep-test-2
 project: group83-MLOps-02476
 method: random
 run_cap: 20
@@ -16,4 +16,9 @@ parameters:
     q: 2
   k-discriminator:
     values: [2, 3, 4]
+command:
+  - python3
+  - ${program}
+  - train-wandb
+  - ${args}
   

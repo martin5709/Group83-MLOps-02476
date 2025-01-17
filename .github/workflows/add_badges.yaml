@@ -7,6 +7,8 @@ on:
 
 jobs:
   add_coverage:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

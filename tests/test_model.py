@@ -19,14 +19,14 @@ def test_output_space_size():
     """Check that the output of the generator is between -1 and 1, and throw an error, if no input is sufficiently negative or positive"""
     torch.manual_seed(42)
     output = []
-    runs = 20
+    runs = 5
     gen_model = Generator(latent_space_size=100)
     for i in range(runs):
-        dummy_input = torch.randn(1, 3, 32, 32)
-        output.append(gen_model(dummy_input))
-    sorted(output)
+        dummy_input = torch.randn(1, 100)
+        output.extend(gen_model(dummy_input).detach().cpu().numpy().tolist()[0])
+    output.sort()
 
     assert output[0] < -0.5 and output[0] >= -1.0
-    assert output[len(output)] > 0.5 and output[len(output)] <= 1.0
+    assert output[len(output) - 1] > 0.5 and output[len(output) - 1] <= 1.0
 
 

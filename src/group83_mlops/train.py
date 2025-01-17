@@ -7,20 +7,19 @@ from torch import nn
 from torchvision.transforms import ToPILImage
 from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100
+
+# Loading the model from CNNDetect
+import sys
+sys.path.append('CNNDetection/networks')
+sys.path.append('CNNDetection')
 from resnet import resnet50
 from fun import get_synth_prob
-import sys
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 app = typer.Typer()
 
 to_pil = ToPILImage() # For saving images for use in CNNDetection
 output_dir = "CNNDetection/tmp"
-
-
-# Loading the model from CNNDetect
-sys.path.append('CNNDetection/networks')
-sys.path.append('CNNDetection')
 
 cnn_det_model = resnet50(num_classes=1)
 state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu')

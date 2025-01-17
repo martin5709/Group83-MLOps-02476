@@ -1,5 +1,7 @@
 # MLOps Project 2025, group 83
 
+![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmartin5709%2FGroup83-MLOps-02476%2Frefs%2Fheads%2Fbadges%2Fcoveragebadge.json)
+
 Participating students:
 Martin Moos Hansen (s203822), Leire Hernandez Martinez (s243266), Mikkel Koefoed Lindtner (s205421), Lucas Pedersen (s203768) and Rita Saraiva (s205717).
 

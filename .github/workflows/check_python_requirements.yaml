@@ -1,9 +1,6 @@
 name: Check Non-Overlapping Python Requirements
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main

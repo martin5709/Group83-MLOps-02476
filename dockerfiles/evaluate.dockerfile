@@ -14,4 +14,4 @@ COPY pyproject.toml pyproject.toml
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 RUN pip install . --no-deps --no-cache-dir --verbose
 
-ENTRYPOINT ["python", "-u", "src/group83_mlops/train.py"]
+ENTRYPOINT ["python", "-u", "src/group83_mlops/evaluate.py"]

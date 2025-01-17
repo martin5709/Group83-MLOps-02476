@@ -9,6 +9,7 @@ jobs:
   add_coverage:
     permissions:
       contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -41,16 +42,17 @@ jobs:
         run: |
           # Configure colour scheme, and get coverage results.
           OUTPUT=$(pytest --cov=group83_mlops tests/ | grep "TOTAL" | awk '{print $4}')
+          COMPCHECK=$(echo "$OUTPUT" | grep -o "^.*[^%]")
           COLOUR="crimson"
-          if [ "$OUTPUT" -gt 94 ]; then
+          if [ "$COMPCHECK" -gt 94 ]; then
             COLOUR="lime"
-          elif [ "$OUTPUT" -gt 89 ]; then
+          elif [ "$COMPCHECK" -gt 89 ]; then
             COLOUR="green"
-          elif [ "$OUTPUT" -gt 79 ]; then
+          elif [ "$COMPCHECK" -gt 79 ]; then
             COLOUR="yellow"
-          elif [ "$OUTPUT" -gt 69 ]; then
+          elif [ "$COMPCHECK" -gt 69 ]; then
             COLOUR="orange"
-          elif [ "$OUTPUT" -gt 49 ]; then
+          elif [ "$COMPCHECK" -gt 49 ]; then
             COLOUR="red"
           else
             COLOUR="crimson"

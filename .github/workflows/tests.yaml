@@ -11,6 +11,7 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.operating-system }}
+    timeout-minutes: 1
     strategy:
       matrix:
         operating-system: ["ubuntu-latest"]

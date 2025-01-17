@@ -142,7 +142,6 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
         for i, real_images in enumerate(main_dataloader):
             real_images = real_images.to(DEVICE)
             temp_batch_size = len(real_images)
-
             # Part 1 -- Give the discriminator a head start against the generator
             for j in range(k_discriminator):
                 # Generate random latent space noise

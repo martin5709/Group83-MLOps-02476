@@ -35,6 +35,7 @@ jobs:
           cd ..
       
       - name: Run and save coverage
+        id: coverage
         run: |
           # Configure colour scheme, and get coverage results.
           OUTPUT=$(pytest --cov=group83_mlops tests/ | grep "TOTAL" | awk '{print $4}')
@@ -53,11 +54,24 @@ jobs:
             COLOUR="crimson"
           fi
 
-          # Only update file and request pr if there is a difference.
+          # Only update file and request pr if there is a difference, by setting UPDATEBADGE.
           CHECK=$(comm -12 <(echo "{\"label\":\"coverage\",\"color\":\"$COLOUR\",\"message\":\"$OUTPUT\"}") <(cat coveragebadge.json))
           if [ "$CHECK" -eq 0 ]
           then
-            exit 0
+            echo "Coverage badge still up-to-date"
+            echo "UPDATEBADGE=0" >> "$GITHUB_OUTPUT"
           else
+            echo "Coverage badge needs to be updated"
             echo "{\"label\":\"coverage\",\"color\":\"$COLOUR\",\"message\":\"$OUTPUT\"}" > coveragebadge.json
+            echo "UPDATEBADGE=1" >> "$GITHUB_OUTPUT"
           fi
+      
+      - name: Create a draft pull request if necessary
+        uses: peter-evans/create-pull-request@v7
+        if: steps.coverage.outputs.UPDATEBADGE == 1
+        with:
+          draft: always-true
+          commit-message: Update Coverage Badge
+          title: Update Coverage Badge
+          body: Update the coverage badge to match the current code coverage on main.
+          branch: update-badge

@@ -1,10 +1,10 @@
 program: src/group83_mlops/train.py
-name: Sweep
+name: Sweep, with generator option
 project: group83-MLOps-02476
 method: random
 run_cap: 20
 parameters:
-  learning-rate:
+  learning-rate: uniform
     min: 0.000005
     max: 0.0005
   batch-size:
@@ -16,4 +16,13 @@ parameters:
     q: 2
   k-discriminator:
     values: [2, 3, 4]
+  gencol:
+    value: "Simple_Generators"
+  discol:
+    value: "Simple_Discriminators"
+command:
+  - python3
+  - ${program}
+  - train-wandb
+  - ${args}
   

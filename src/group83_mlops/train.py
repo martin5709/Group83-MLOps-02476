@@ -6,8 +6,9 @@ import hydra
 from torch import nn
 from torchvision.transforms import ToPILImage
 from group83_mlops.model import Generator, Discriminator
-from group83_mlops.data import cifar100
+from group83_mlops.data import cifar100, cifar100_test
 import subprocess
+import json
 
 # Loading the model from CNNDetect
 import sys
@@ -31,7 +32,7 @@ cnn_det_model.load_state_dict(state_dict['model'])
 cnn_det_model.to(DEVICE)
 
 @app.command()
-def train_hydra(experiment: str = "exp1") -> None:
+def train_hydra(experiment: str = "exp1", quick_test: bool = False) -> None:
     config_location = "../../configs/experiments" # Basically, it will by default go here, then it will default to default, unless otherwise specified here.
     with hydra.initialize(version_base=None, config_path=config_location):
         cfg = hydra.compose(config_name=experiment)
@@ -42,7 +43,7 @@ def train_hydra(experiment: str = "exp1") -> None:
         latent_space_size = cfg.hyperparameters.latent_space_size
         learning_rate = cfg.hyperparameters.learning_rate
         random_state = cfg.hyperparameters.random_state
-        train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, wandb_active=False)
+        train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, wandb_active=False, quick_test=quick_test)
     
 @app.command()
 def train_wandb(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol: str = "Simple_Generators", discol: str = "Simple_Discriminators") -> None:
@@ -95,7 +96,7 @@ def logging_loss(wandb_active, dictlog : dict[any, any]):
     if wandb_active:
         wandb.log(dictlog)
 
-def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False) -> None:
+def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False, quick_test: bool = False) -> None:
 
     """Training step for the GAN.
     
@@ -109,6 +110,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     random_state -- What is the random state that you'd like to fix for the system?
     latent_space_size -- How big is the latent space for the Generator?
     wandb_active -- Is wandb logging to be used or not?
+    quick_test -- Use a smaller dataset for pytest?
     """
     
     # Fix random state to ensure reproducability.
@@ -116,7 +118,10 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
 
 
     # Setup dataloading from data.py
-    main_dataset = cifar100()
+    if quick_test:
+        main_dataset = cifar100_test()
+    else:
+        main_dataset = cifar100()
     main_dataloader = torch.utils.data.DataLoader(main_dataset, batch_size=batch_size)
 
     # Setup all concerning generator model
@@ -138,7 +143,6 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
         for i, real_images in enumerate(main_dataloader):
             real_images = real_images.to(DEVICE)
             temp_batch_size = len(real_images)
-
             # Part 1 -- Give the discriminator a head start against the generator
             for j in range(k_discriminator):
                 # Generate random latent space noise
@@ -187,7 +191,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
             logging_loss(wandb_active, {"Generator_loss": loss.item()})
 
             # Get idea of loss
-            if i % 100 == 0:
+            if i % 1000 == 0:
                 print(f"Epoch {epoch}, iter {i}, gen loss: {loss.item()}")
                 z_for_logging = torch.randn(1, latent_space_size)
                 z_for_logging = z_for_logging.type_as(real_images)

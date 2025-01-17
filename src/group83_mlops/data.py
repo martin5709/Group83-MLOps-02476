@@ -3,9 +3,10 @@ from tqdm import tqdm
 
 import typer
 import torch
-from torch.utils.data import Dataset, DataLoader,TensorDataset
+from torch.utils.data import Dataset, DataLoader, TensorDataset, Subset
 import torchvision
 import torchvision.transforms as transforms
+import numpy as np
 
 RAW_DATA_PATH="./data/raw"
 OUT_DATA ="./data/processed"
@@ -95,11 +96,20 @@ def preprocess_data(raw_data_path: Path, output_data_path: Path) -> None:
     dataset.preprocess(output_data_path)
     
 def cifar100() -> tuple[torch.utils.data.Dataset]:
-    """Return train and test datasets for cifar-100."""
+    """Return train dataset for cifar-100."""
     #assumes self.data_path = data/raw/cifar-100-python
-    dataset = torch.load(f"{OUT_DATA}/train_images.pt")
+    dataset = torch.load(f"{OUT_DATA}/train_images.pt", weights_only=True)
     # dataloader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
     # dataset = TensorDataset(dataset)
+    return dataset
+
+def cifar100_test() -> tuple[torch.utils.data.Dataset]:
+    """Return test dataset for cifar-100."""
+    #assumes self.data_path = data/raw/cifar-100-python
+    dataset = torch.load(f"{OUT_DATA}/test_images.pt", weights_only=True)
+    # dataloader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
+    # dataset = TensorDataset(dataset)
+    dataset = Subset(dataset, indices=np.arange(1000))
     return dataset
 
 if __name__ == "__main__":

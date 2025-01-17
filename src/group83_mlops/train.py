@@ -6,15 +6,8 @@ import hydra
 from torch import nn
 from torchvision.transforms import ToPILImage
 from group83_mlops.model import Generator, Discriminator
-from group83_mlops.data import cifar100
-
-
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
-
-
-to_pil = ToPILImage() # For saving images for use in CNNDetection
-output_dir = "CNNDetection/tmp"
-
+from group83_mlops.data import cifar100, cifar100_test
+import subprocess
 
 # Loading the model from CNNDetect
 import sys
@@ -23,19 +16,22 @@ sys.path.append('CNNDetection')
 from resnet import resnet50
 from fun import get_synth_prob
 
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+app = typer.Typer()
+
+to_pil = ToPILImage() # For saving images for use in CNNDetection
+output_dir = "CNNDetection/tmp"
+
 cnn_det_model = resnet50(num_classes=1)
-state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu')
+cnn_model = "CNNDetection/weights/blur_jpg_prob0.5.pth"
+if not os.path.exists(cnn_model):
+    subprocess.call(['sh', './CNNDetection/weights/download_weights.sh'])
+state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu', weights_only=True)
 cnn_det_model.load_state_dict(state_dict['model'])
 cnn_det_model.to(DEVICE)
 
-
-
-def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators") -> None:
-
-app = typer.Typer()
-
 @app.command()
-def train_hydra(experiment: str = "exp1") -> None:
+def train_hydra(experiment: str = "exp1", quick_test: bool = False) -> None:
     config_location = "../../configs/experiments" # Basically, it will by default go here, then it will default to default, unless otherwise specified here.
     with hydra.initialize(version_base=None, config_path=config_location):
         cfg = hydra.compose(config_name=experiment)
@@ -46,13 +42,13 @@ def train_hydra(experiment: str = "exp1") -> None:
         latent_space_size = cfg.hyperparameters.latent_space_size
         learning_rate = cfg.hyperparameters.learning_rate
         random_state = cfg.hyperparameters.random_state
-        train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, wandb_active=False)
+        train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, wandb_active=False, quick_test=quick_test)
     
 @app.command()
 def train_wandb(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol: str = "Simple_Generators", discol: str = "Simple_Discriminators") -> None:
     train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, gencol=gencol, discol=discol, wandb_active=True)
 
-def setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, wandb_active: bool = False):
+def setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, gencol, discol, wandb_active: bool = False):
     if wandb_active:
         # Setup logging for WandB
         wandb.login()
@@ -99,7 +95,7 @@ def logging_loss(wandb_active, dictlog : dict[any, any]):
     if wandb_active:
         wandb.log(dictlog)
 
-def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False) -> None:
+def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False, quick_test: bool = False) -> None:
 
     """Training step for the GAN.
     
@@ -113,6 +109,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     random_state -- What is the random state that you'd like to fix for the system?
     latent_space_size -- How big is the latent space for the Generator?
     wandb_active -- Is wandb logging to be used or not?
+    quick_test -- Use a smaller dataset for pytest?
     """
     
     # Fix random state to ensure reproducability.
@@ -120,7 +117,10 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
 
 
     # Setup dataloading from data.py
-    main_dataset = cifar100()
+    if quick_test:
+        main_dataset = cifar100_test()
+    else:
+        main_dataset = cifar100()
     main_dataloader = torch.utils.data.DataLoader(main_dataset, batch_size=batch_size)
 
     # Setup all concerning generator model
@@ -134,7 +134,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     dis_opt = torch.optim.Adam(dis_model.parameters(), lr=learning_rate)
 
 
-    run = setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, wandb_active)
+    run = setup_wandb(learning_rate, batch_size, epochs, k_discriminator, random_state, latent_space_size, gencol, discol, wandb_active)
 
 
     # GAN Paper: https://arxiv.org/pdf/1406.2661 -- See the algorithm on page 4
@@ -142,7 +142,6 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
         for i, real_images in enumerate(main_dataloader):
             real_images = real_images.to(DEVICE)
             temp_batch_size = len(real_images)
-
             # Part 1 -- Give the discriminator a head start against the generator
             for j in range(k_discriminator):
                 # Generate random latent space noise

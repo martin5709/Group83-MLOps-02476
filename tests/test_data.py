@@ -1,17 +1,16 @@
 import torch
 from torch.utils.data import Dataset
-
-from src.group83_mlops.data import preprocess_data,MyDataset,cifar100
+import group83_mlops.data as dt
 
 
 def test_my_dataset():
     """Test the MyDataset class."""
-    dataset = MyDataset("data/raw")
+    dataset = dt.MyDataset("data/raw")
     assert isinstance(dataset, Dataset)
 
 def test_data():
-    preprocess_data("data/raw", "data/processed")
-    main_dataset = cifar100()
+    dt.preprocess_data("data/raw", "data/processed")
+    main_dataset = dt.cifar100()
     main_dataloader = torch.utils.data.DataLoader(main_dataset, batch_size=64)
     
     assert type(main_dataset)== torch.Tensor , f"Expected main_dataset to be a torch.Tensor; however, it is of type {type(main_dataset)} "

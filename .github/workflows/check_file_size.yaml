@@ -1,9 +1,6 @@
 name: Check Largest File Size
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main

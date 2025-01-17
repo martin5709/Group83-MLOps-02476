@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  id: 'Build train container image'
+  id: 'Build train container image.'
   args: [
     'build',
     '.',
@@ -10,7 +10,7 @@ steps:
     'dockerfiles/train.dockerfile'
   ]
 - name: 'gcr.io/cloud-builders/docker'
-  id: 'Push train container image'
+  id: 'Push train container image.'
   args: [
     'push',
     'europe-west1-docker.pkg.dev/$PROJECT_ID/docker-images/train:latest'

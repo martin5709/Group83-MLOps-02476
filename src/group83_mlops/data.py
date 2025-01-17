@@ -3,9 +3,10 @@ from tqdm import tqdm
 
 import typer
 import torch
-from torch.utils.data import Dataset, DataLoader,TensorDataset
+from torch.utils.data import Dataset, DataLoader, TensorDataset, Subset
 import torchvision
 import torchvision.transforms as transforms
+import numpy as np
 
 RAW_DATA_PATH="./data/raw"
 OUT_DATA ="./data/processed"
@@ -46,8 +47,8 @@ class MyDataset(Dataset):
         for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 train images"):
             images.append(image)  # Append each image tensor to the list
 
-        # Concatenate all image tensors along the 0th dimension (batch dimension)
-        images_tensor = torch.cat(images, dim=0)
+        # Stack images such that they are individual
+        images_tensor = torch.stack(images)
 
         # Save the resulting tensor to a file
         torch.save(images_tensor, f"{output_folder}/train_images.pt")
@@ -61,7 +62,8 @@ class MyDataset(Dataset):
         for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 test images"):
             images.append(image)
 
-        images_tensor = torch.cat(images,dim=0)
+        images_tensor = torch.stack(images)
+        print(images_tensor.size())
 
         torch.save(images_tensor, f"{output_folder}/test_images.pt")
 
@@ -72,11 +74,20 @@ def preprocess_data(raw_data_path: Path, output_data_path: Path) -> None:
     dataset.preprocess(output_data_path)
     
 def cifar100() -> tuple[torch.utils.data.Dataset]:
-    """Return train and test datasets for cifar-100."""
+    """Return train dataset for cifar-100."""
     #assumes self.data_path = data/raw/cifar-100-python
-    dataset = torch.load(f"{OUT_DATA}/train_images.pt")
+    dataset = torch.load(f"{OUT_DATA}/train_images.pt", weights_only=True)
     # dataloader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
     # dataset = TensorDataset(dataset)
+    return dataset
+
+def cifar100_test() -> tuple[torch.utils.data.Dataset]:
+    """Return test dataset for cifar-100."""
+    #assumes self.data_path = data/raw/cifar-100-python
+    dataset = torch.load(f"{OUT_DATA}/test_images.pt", weights_only=True)
+    # dataloader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
+    # dataset = TensorDataset(dataset)
+    dataset = Subset(dataset, indices=np.arange(1000))
     return dataset
 
 if __name__ == "__main__":

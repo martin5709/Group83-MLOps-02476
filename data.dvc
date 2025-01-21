@@ -5,15 +5,31 @@ outs:
   - relpath: processed/.gitkeep
     md5: d41d8cd98f00b204e9800998ecf8427e
     size: 0
+    cloud:
+      remote_storage:
+        etag: 08f4d4e0a5cc868b031001
+        version_id: '1737455010589300'
   - relpath: processed/test_images.pt
     md5: 71a2411e7b4168fc7643a60021dada12
     size: 122881200
+    cloud:
+      remote_storage:
+        etag: 08cee987b1d2868b031001
+        version_id: '1737456644912334'
   - relpath: processed/train_images.pt
     md5: 50b1027358cbd82926b04665f8bb2792
     size: 614401205
+    cloud:
+      remote_storage:
+        etag: 08dce2e5bcd2868b031001
+        version_id: '1737456669520220'
   - relpath: raw/.gitkeep
     md5: d41d8cd98f00b204e9800998ecf8427e
     size: 0
+    cloud:
+      remote_storage:
+        etag: 08a585eea5cc868b031001
+        version_id: '1737455010808485'
   - relpath: raw/cifar-100-python.tar.gz
     md5: eb9058c3a382ffc7106e4002c42a8d85
     size: 169001437

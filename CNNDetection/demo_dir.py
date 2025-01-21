@@ -87,7 +87,7 @@ if(not opt.size_only):
   acc = accuracy_score(y_true, y_pred > 0.5)
   ap = average_precision_score(y_true, y_pred)
   # 'AP: {:2.2f}, 
-  print('\nAccuracy: {:2.2f}\nAccuracy on real images: {:2.2f}\nAccuracy on fake images: {:2.2f}'.format( acc*100., r_acc*100., f_acc*100.))
+  print('\nImages in test data predicted as real: {:2.2f}%\nGenerated images predicted as real: {:2.2f}%'.format(  r_acc*100., (1-f_acc)*100.))
 
   n_real = int(np.sum(1-y_true))
   n_fake = int(np.sum(y_true))
@@ -99,4 +99,4 @@ if(not opt.size_only):
 
   p_value = 2 * (1 - stats.norm.cdf(abs(z)))
   
-  print(f"Estimated p-value of the model having the same accuracy on real and fake images: p = {p_value:.4f}.")
+  print(f"Estimated p-value of these two being the same: p = {p_value:.4f}.")

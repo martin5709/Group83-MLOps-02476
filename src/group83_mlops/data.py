@@ -62,9 +62,7 @@ class MyDataset(Dataset):
         
         ### Do the same for the test data set
         test_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=False, download=True, transform=transform)
-        print("Hej")
         dataloader = TensorDataset(torch.tensor(test_dataset.data).float() / 255.0 , torch.tensor(test_dataset.targets) )
-        print("Hej")
 
         images = []
         for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 test images"):
@@ -81,10 +79,10 @@ def preprocess_data(raw_data_path: Path, output_data_path: Path) -> None:
     dataset = MyDataset(raw_data_path)
     dataset.preprocess(output_data_path)
     
-def cifar100() -> tuple[torch.utils.data.Dataset]:
+def cifar100(out_data: str = OUT_DATA) -> tuple[torch.utils.data.Dataset]:
     """Return train dataset for cifar-100."""
     #assumes self.data_path = data/raw/cifar-100-python
-    dataset = torch.load(f"{OUT_DATA}/train_images.pt", weights_only=True)
+    dataset = torch.load(f"{out_data}/train_images.pt", weights_only=True)
     return dataset
 
 def cifar100_test() -> tuple[torch.utils.data.Dataset]:

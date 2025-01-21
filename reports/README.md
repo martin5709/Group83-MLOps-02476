@@ -153,9 +153,9 @@ The most significant of these was `CNNDetection`, which is what we will focus on
 2. We run the `CNNDetection` algorithm on both sets, logging the percentage of images it denotes as `real` in each set $p_{real}$ and $p_{fake}$.
 3. We then run a statistical test for wether $ p_{real} = p_{fake} $, essentially assuming that if these two are the same, then our generator creates images similar to the training data.
 
-$$ z = \frac{(p_{real }- p_{fake})}  {\sqrt{\hat{p} * (1 - \hat{p}) * (\frac{1}{n_{real}}  + \frac{1}{n_{fake}} )}},  $$
+$$ z = \frac{(p_{real }- p_{fake})}  {\sqrt{\hat{p} \cdot (1 - \hat{p}) \cdot (\frac{1}{n_{real}}  + \frac{1}{n_{fake}} )}},  $$
 where
-$$ \hat{p}= \frac{n_{real} * p_{real} + n_{fake} * p_{fake}} / {n_{real} + n_{fake}}, $$
+$$ \hat{p}= \frac{n_{real} \cdot p_{real} + n_{fake} \cdot p_{fake}}{n_{real} + n_{fake}}, $$
 which is compared to a standard normal distribution, to get a p-values.
 
 Now, `CNNDetection` did *not* end up being a significant part of our project. we have implemented the above test, to take a trained model an evaluate it. The ideal scenario would be to use the same algorithm during training, to evaluate the current model (essentially just an extra pre-trained non-fluctuating discriminator), perhaps even having a `wandb` sweep try to maximize a p-value. However, `CNNDetection` is, very interestingly, quite certain that random noise is *not* AI-generated, which means that our initial models, before training, acutally perform quite well using this metric... which makes optimization weird. It's also quite slow to do this.
@@ -209,7 +209,9 @@ To setup an exact copy of the development environment, the following steps shoul
 >
 > Answer:
 
---- question 5 fill here ---
+We have used most of the stuff from the Cookiecutter template, e.g. `src`, `models` and `data`. The only thing we did not end up using was the `notebooks` folder, as we never ended up actually making any.
+
+We have added a folder called `CNNDetection`, mainly for the reason of clear distinction between code we wrote, and code we "borrowed" from others. 
 
 ### Question 6
 
@@ -273,7 +275,11 @@ To setup an exact copy of the development environment, the following steps shoul
 >
 > Answer:
 
---- question 9 fill here ---
+We have made plenty use of both brances and pull requests in this project. Branches have been a significant help in regards to parallelising tasks, s.t. individual group members could work on different parts of the code, without interferring. Suprisingly the branches have actually also been helpful when a group member needed aid in sorting out a specific issue on their branch, since another group member could easily just switch branch, and try out the new code for themselves, instead of everyone just looking over shoulders, and running stuff on one PC.
+
+We set up pull requests to work along tests, e.g. "Are you attempting to commit large files?", this helped ensuring no major errors would make their way into the main branch. To make our lives easier, we did set it up so any group member could create their own pull request, and merge their branch into main.
+
+With respect to verion control, we did luckily not have any large enough issues to actually have to revert changes, but it was sometimes helpful to be able to just close a branch, if you messed it up enough.
 
 ### Question 10
 
@@ -288,7 +294,9 @@ To setup an exact copy of the development environment, the following steps shoul
 >
 > Answer:
 
---- question 10 fill here ---
+In principle we did set up dvc for the project, mainly just to see if we could. Though, since we just use the CIFAR-100 dataset, it's not like we expect there to be any version control to take care of for this project.
+
+Data version control would definitely be helpful in a scenario where we actually expected to expand our training data. For us, in the context of GANs, this could perhaps correspond to finding more images of the same targets or expanding the range of targets (one could certainly imagine wanting to generate images of something other than bears or tables).
 
 ### Question 11
 
@@ -324,7 +332,11 @@ To setup an exact copy of the development environment, the following steps shoul
 >
 > Answer:
 
---- question 12 fill here ---
+We ended up setting up two training commands, one using hydra and one using wandb, both of which are called with the `invoke` framework. So we would call either 
+
+`invoke train-hydra --experiment.yaml` or `invoke train-wandb --arg1...`
+
+so hydra training takes a yaml file describing the experiment, the wandb takes arguments (sutch as batch size and learning rate). The `train-wandb` was set up this way, so it was easy to set up a hyperparameter sweep, which just parsed arguments to the function, we essentially never actually ran `invoke train-wandb --arg1...`, since its very tedious to write the arguments in by hand.
 
 ### Question 13
 
@@ -339,7 +351,14 @@ To setup an exact copy of the development environment, the following steps shoul
 >
 > Answer:
 
---- question 13 fill here ---
+To us at least, it seems like making use of wandbs logging is the simpelest way to keep track of experiments, escpecially when performing hyperparameter sweeps. Since wandb can just save the trained models as artifacts, and each of these artifacts are then linked to which ever hyperparameters helped create them, it's very simple to just look up which parameters to use.
+
+In our case with GANs, where the biggest criteria for a good model is "this image looks good to me" we just log images as here, and just view hyperparameters in the provided visalisation
+
+![alt text](figures/wand_sweep.png)
+*Note* our models suck, and the only things to take away from this image is that we can visualize and log stuff.
+
+Hydra solves the issue of reproducability by simply requiring a config file to run. You can then either just create new .yaml files for each experiment, and just keep track of run-names, or remember to commit to git, which will then also version control your files, s.t. even if you mess up and delete/overwrite and experiment, you can still find it.
 
 ### Question 14
 

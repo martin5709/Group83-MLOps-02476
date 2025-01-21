@@ -169,13 +169,17 @@ For managing our dependencies, we used a combination of `conda` and `pip`. The l
 
 To setup an exact copy of the development environment, the following steps should be followed:
 
-* Firstly, they need to be invited to our Google Cloud Project, such that they have access to the dvc bucket for the data (ask our members for access). Then follow with the steps below.
+* Firstly, they need to be invited to our Google Cloud Project, such that they have access to the dvc bucket for the data (ask our members for access).
+* Secondly, they need to have gcloud suite setup from command line, by following the instructions from [here](https://cloud.google.com/sdk/docs/install).
+* Thirdly, they need to follow the rest of the gcloud setup guide found at the following [repo](https://skaftenicki.github.io/dtu_mlops/s6_the_cloud/cloud_setup/).
+* Alternatively, they can skip the whole above process if they don't intend to use the `dvc` data by running `invoke preprocess-data`
+* Finally, they can configure the actual dependencies and python environment:
 * `conda create --name Group83Env python=3.11`
 * `cd <repository root>`
 * `pip install -r requirements.txt`
 * `pip install -r requirements_dev.txt`
 * `pip install -e .`
-* `dvc pull`
+* `dvc pull --no-run-cache`
 
 ### Question 5
 

@@ -92,7 +92,7 @@ if(not opt.size_only):
   n_real = int(np.sum(1-y_true))
   n_fake = int(np.sum(y_true))
   p_real = r_acc
-  p_fake = f_acc
+  p_fake = 1-f_acc
 
   p_hat = (n_real * p_real + n_fake * p_fake) / (n_real + n_fake)
   z = (p_real - p_fake) / np.sqrt(p_hat * (1 - p_hat) * (1/n_real + 1/n_fake))

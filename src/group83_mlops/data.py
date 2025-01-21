@@ -49,27 +49,30 @@ class MyDataset(Dataset):
         dataloader = TensorDataset(torch.tensor(train_dataset.data).float() / 255.0 , torch.tensor(train_dataset.targets) )
 
         images = []  # Initialize an empty list to store images
-
+       
         for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 train images"):
             images.append(image)  # Append each image tensor to the list
-
-        # Concatenate all image tensors along the 0th dimension (batch dimension)
+        
+        # # Concatenate all image tensors along the 0th dimension (batch dimension)
         images_tensor = torch.stack(images)
         images_tensor = (images_tensor-new_mean)/new_std
 
-        # Save the resulting tensor to a file
+        # # Save the resulting tensor to a file
         torch.save(images_tensor, f"{output_folder}/train_images.pt")
-
+        
         ### Do the same for the test data set
         test_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=False, download=True, transform=transform)
+        print("Hej")
         dataloader = TensorDataset(torch.tensor(test_dataset.data).float() / 255.0 , torch.tensor(test_dataset.targets) )
+        print("Hej")
 
         images = []
         for image, _ in tqdm(dataloader, desc="Processing CIFAR-100 test images"):
             images.append(image)
 
         images_tensor = torch.stack(images)
-
+        images_tensor = (images_tensor-new_mean)/new_std
+        
         torch.save(images_tensor, f"{output_folder}/test_images.pt")
 
 

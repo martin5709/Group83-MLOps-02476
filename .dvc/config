@@ -1,0 +1,4 @@
+[core]
+    remote = myremote
+['remote "myremote"']
+    url = gs://2e492f91-b65c-45f6-9157-f84a80361b5c

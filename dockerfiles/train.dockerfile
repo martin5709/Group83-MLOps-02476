@@ -12,6 +12,8 @@ COPY README.md README.md
 COPY pyproject.toml pyproject.toml
 
 RUN pip install -r requirements.txt --no-cache-dir
+RUN pip install -r requirements_dev.txt --no-cache-dir
 RUN pip install . --no-deps --no-cache-dir --verbose
+RUN dvc pull --no-run-cache
 
-ENTRYPOINT ["python", "-u", "src/group83_mlops/train.py"]
+ENTRYPOINT ["python", "src/group83_mlops/train.py train-hydra"]

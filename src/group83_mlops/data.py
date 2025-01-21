@@ -44,24 +44,9 @@ class MyDataset(Dataset):
         new_std = new_std[None,None,None,:]
 
         print("<<preprocessing>>")
-        train_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=True, download=True, transform=transform)
-        # raw_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=True, download=True, transform=transform)
-        # print(torch.tensor(raw_dataset.data).float().mean(dim=(0, 1, 2)) / 255, torch.tensor(raw_dataset.data).float().std(dim=(0, 1, 2)) / 255)
-
-        # raw_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=True, download=True, transform=transform)
-        # norm = transforms.Normalize(torch.tensor(raw_dataset.data).float().mean(dim=(0, 1, 2)) / 255 , torch.tensor(raw_dataset.data).float().std(dim=(0, 1, 2)) )
-        # train_dataset = norm(raw_dataset)
-
-        # dataloader = TensorDataset(train_dataset.data , train_dataset.targets )
-
-        
-        # dataloader = TensorDataset(torch.tensor(train_dataset.data) ,torch.tensor(train_dataset.targets) )
-
-        
-        # dataloader = DataLoader(train_dataset, batch_size=64, shuffle=False, num_workers=2)
-        dataloader = TensorDataset(torch.tensor(train_dataset.data).float() / 255.0 , torch.tensor(train_dataset.targets) )
-
         # Load the raw dataset with ToTensor() only
+        train_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=True, download=True, transform=transform)
+        dataloader = TensorDataset(torch.tensor(train_dataset.data).float() / 255.0 , torch.tensor(train_dataset.targets) )
 
         images = []  # Initialize an empty list to store images
 
@@ -70,7 +55,6 @@ class MyDataset(Dataset):
 
         # Concatenate all image tensors along the 0th dimension (batch dimension)
         images_tensor = torch.stack(images)
-
         images_tensor = (images_tensor-new_mean)/new_std
 
         # Save the resulting tensor to a file
@@ -78,7 +62,6 @@ class MyDataset(Dataset):
 
         ### Do the same for the test data set
         test_dataset = torchvision.datasets.CIFAR100(root=f'{self.data_path}', train=False, download=True, transform=transform)
-        # dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_workers=2)
         dataloader = TensorDataset(torch.tensor(test_dataset.data).float() / 255.0 , torch.tensor(test_dataset.targets) )
 
         images = []
@@ -99,21 +82,16 @@ def cifar100() -> tuple[torch.utils.data.Dataset]:
     """Return train dataset for cifar-100."""
     #assumes self.data_path = data/raw/cifar-100-python
     dataset = torch.load(f"{OUT_DATA}/train_images.pt", weights_only=True)
-    # dataloader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
-    # dataset = TensorDataset(dataset)
     return dataset
 
 def cifar100_test() -> tuple[torch.utils.data.Dataset]:
     """Return test dataset for cifar-100."""
     #assumes self.data_path = data/raw/cifar-100-python
     dataset = torch.load(f"{OUT_DATA}/test_images.pt", weights_only=True)
-    # dataloader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
-    # dataset = TensorDataset(dataset)
     dataset = Subset(dataset, indices=np.arange(1000))
     return dataset
 
 if __name__ == "__main__":
     typer.run(preprocess_data)
-    # typer.run(cifar100())
     dataloader = DataLoader(typer.run(cifar100()), batch_size=64, shuffle=True, num_workers=2)
     print(next(iter(dataloader)))

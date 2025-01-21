@@ -1,6 +1,60 @@
 outs:
-- md5: 084e5626a27ceeb4d229d53a8ad98f72.dir
-  size: 969703740
-  nfiles: 8
-  hash: md5
+- hash: md5
   path: data
+  files:
+  - relpath: processed/.gitkeep
+    md5: d41d8cd98f00b204e9800998ecf8427e
+    size: 0
+    cloud:
+      remote_storage:
+        etag: 08f4d4e0a5cc868b031001
+        version_id: '1737455010589300'
+  - relpath: processed/train_images.pt
+    md5: 33a86f4c51b29ea381234be04a0782ce
+    size: 614401205
+    cloud:
+      remote_storage:
+        etag: 08cbcfc9bdcc868b031001
+        version_id: '1737455060543435'
+  - relpath: raw/.gitkeep
+    md5: d41d8cd98f00b204e9800998ecf8427e
+    size: 0
+    cloud:
+      remote_storage:
+        etag: 08a585eea5cc868b031001
+        version_id: '1737455010808485'
+  - relpath: raw/cifar-100-python.tar.gz
+    md5: eb9058c3a382ffc7106e4002c42a8d85
+    size: 169001437
+    cloud:
+      remote_storage:
+        etag: 089f9ae9accc868b031001
+        version_id: '1737455025409311'
+  - relpath: raw/cifar-100-python/file.txt~
+    md5: d41d8cd98f00b204e9800998ecf8427e
+    size: 0
+    cloud:
+      remote_storage:
+        etag: 08f2fff2a5cc868b031001
+        version_id: '1737455010889714'
+  - relpath: raw/cifar-100-python/meta
+    md5: 7973b15100ade9c7d40fb424638fde48
+    size: 1473
+    cloud:
+      remote_storage:
+        etag: 08a692f3a5cc868b031001
+        version_id: '1737455010892070'
+  - relpath: raw/cifar-100-python/test
+    md5: f0ef6b0ae62326f3e7ffdfab6717acfc
+    size: 31049707
+    cloud:
+      remote_storage:
+        etag: 08f2be95a8cc868b031001
+        version_id: '1737455015649138'
+  - relpath: raw/cifar-100-python/train
+    md5: 16019d7e3df5f24257cddd939b257f8d
+    size: 155249918
+    cloud:
+      remote_storage:
+        etag: 08bb8affadcc868b031001
+        version_id: '1737455027864891'

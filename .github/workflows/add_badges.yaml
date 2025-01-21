@@ -1,0 +1,81 @@
+name: Add Badges to Repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  add_coverage:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: setup.py
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip setuptools wheel
+          pip install -r requirements.txt
+          pip install -r requirements_dev.txt
+          pip install -e .
+          pip list
+
+      - name: Setup temp folder
+        run: |
+          cd CNNDetection
+          mkdir tmp
+          cd ..
+      
+      - name: Run and save coverage
+        id: coverage
+        run: |
+          # Configure colour scheme, and get coverage results.
+          OUTPUT=$(pytest --cov=group83_mlops tests/ | grep "TOTAL" | awk '{print $4}')
+          COMPCHECK=$(echo "$OUTPUT" | grep -o "^.*[^%]")
+          COLOUR="crimson"
+          if [ "$COMPCHECK" -gt 94 ]; then
+            COLOUR="lime"
+          elif [ "$COMPCHECK" -gt 89 ]; then
+            COLOUR="green"
+          elif [ "$COMPCHECK" -gt 79 ]; then
+            COLOUR="yellow"
+          elif [ "$COMPCHECK" -gt 69 ]; then
+            COLOUR="orange"
+          elif [ "$COMPCHECK" -gt 49 ]; then
+            COLOUR="red"
+          else
+            COLOUR="crimson"
+          fi
+
+          # Only update file and request pr if there is a difference, by setting UPDATEBADGE.
+          CHECK=$(comm -12 <(echo "{\"label\":\"coverage\",\"color\":\"$COLOUR\",\"message\":\"$OUTPUT\"}") <(cat coveragebadge.json))
+          if [ "$CHECK" -eq 0 ]
+          then
+            echo "Coverage badge still up-to-date"
+            echo "UPDATEBADGE=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "Coverage badge needs to be updated"
+            echo "{\"label\":\"coverage\",\"color\":\"$COLOUR\",\"message\":\"$OUTPUT\"}" > coveragebadge.json
+            echo "UPDATEBADGE=1" >> "$GITHUB_OUTPUT"
+          fi
+      
+      - name: Create a draft pull request if necessary
+        uses: peter-evans/create-pull-request@v7
+        if: steps.coverage.outputs.UPDATEBADGE == 1
+        with:
+          draft: always-true
+          commit-message: Update Coverage Badge
+          title: Update Coverage Badge
+          body: Update the coverage badge to match the current code coverage on main.
+          branch: update-badge

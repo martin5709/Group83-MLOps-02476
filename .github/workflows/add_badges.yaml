@@ -37,6 +37,15 @@ jobs:
           mkdir tmp
           cd ..
       
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCLOUD_JSON_SERVACC }}
+      
+      - name: Get DVC Data
+        run: |
+          dvc pull --no-run-cache
+      
       - name: Run and save coverage
         id: coverage
         run: |

@@ -1,6 +1,6 @@
 import wandb
 import torch
-from model import Generator, Discriminator
+from group83_mlops.model import Generator, Discriminator
 
 REGISTRY = 'MLOps_Project_Models'
 

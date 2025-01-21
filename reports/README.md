@@ -143,7 +143,9 @@ s203822, s243266, s205717, s205421, s203768
 >
 > Answer:
 
---- question 3 fill here ---
+For our project, we have used several open source, third party frameworks not covered in the course, such as [CNNDetection](https://github.com/PeterWang512/CNNDetection), and also [pytest-cov](https://pypi.org/project/pytest-cov/) (Not to be confused with `coverage`), etc.
+
+The most significant of these was `CNNDetection`, which is what we will focus on in this response. Since we are working with GANs (Generative Adversarial Networks), it can be hard to get proper validation metrics, to understand which models perform well, to perform a proper hyperparameter sweep using `wandb`. Now, `CNNDetection` is a library, which is specialised in detecting whether an image was generated using CNN-based GANs ([See their page here](https://peterwang512.github.io/CNNDetection/)). As such, by using this library, we could configure `wandb` adequately for hyperparameter sweeping, by effectively having a extra non-fluctuating discriminator. We used the library, by 
 
 ## Coding environment
 
@@ -163,7 +165,17 @@ s203822, s243266, s205717, s205421, s203768
 >
 > Answer:
 
---- question 4 fill here ---
+For managing our dependencies, we used a combination of `conda` and `pip`. The list of dependencies for the project was managed (and hence auto-generated) using `pipreqs` to write the `requirements.txt` file, and then, to avoid overlaps with the `requirements_dev.txt` (where we would manually put development dependencies and specify their version, by checking the installed version using `pip list`), we setup a pipeline to check that there are no overlapping dependencies using GitHub Actions (`check_python_requirements.yaml`).
+
+To setup an exact copy of the development environment, the following steps should be followed:
+
+* Firstly, they need to be invited to our Google Cloud Project, such that they have access to the dvc bucket for the data (ask our members for access). Then follow with the steps below.
+* `conda create --name Group83Env python=3.11`
+* `cd <repository root>`
+* `pip install -r requirements.txt`
+* `pip install -r requirements_dev.txt`
+* `pip install -e .`
+* `dvc pull`
 
 ### Question 5
 

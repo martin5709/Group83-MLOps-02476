@@ -184,3 +184,5 @@ models/
 artifacts/
 CNNDetection/tmp
 hpc_logs/
+!.dvc
+/data

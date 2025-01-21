@@ -6,6 +6,10 @@ RUN apt update && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
 COPY src src/
+COPY CNNDetection CNNDetection/
+COPY configs configs/
+COPY .dvc .dvc/
+COPY .dvcignore .dvcignore
 COPY requirements.txt requirements.txt
 COPY requirements_dev.txt requirements_dev.txt
 COPY README.md README.md

@@ -1,4 +1,5 @@
 [core]
-    remote = myremote
-['remote "myremote"']
-    url = gs://2e492f91-b65c-45f6-9157-f84a80361b5c
+    remote = remote_storage
+['remote "remote_storage"']
+    url = gs://1797480b-392d-46d1-be40-af7e3b95936b/
+    version_aware = true

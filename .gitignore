@@ -186,3 +186,4 @@ CNNDetection/tmp
 hpc_logs/
 !.dvc
 /data
+gha-creds-*.json

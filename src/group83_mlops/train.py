@@ -17,6 +17,8 @@ sys.path.append('CNNDetection')
 from resnet import resnet50
 from fun import get_synth_prob
 
+gcs_data = '/gcs/1797480b-392d-46d1-be40-af7e3b95936b/data/processed'
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 app = typer.Typer()
 
@@ -32,7 +34,7 @@ cnn_det_model.load_state_dict(state_dict['model'])
 cnn_det_model.to(DEVICE)
 
 @app.command()
-def train_hydra(experiment: str = "exp1", quick_test: bool = False) -> None:
+def train_hydra(experiment: str = "exp1", quick_test: bool = False, vertex: bool = False) -> None:
     config_location = "../../configs/experiments" # Basically, it will by default go here, then it will default to default, unless otherwise specified here.
     with hydra.initialize(version_base=None, config_path=config_location):
         cfg = hydra.compose(config_name=experiment)
@@ -43,7 +45,7 @@ def train_hydra(experiment: str = "exp1", quick_test: bool = False) -> None:
         latent_space_size = cfg.hyperparameters.latent_space_size
         learning_rate = cfg.hyperparameters.learning_rate
         random_state = cfg.hyperparameters.random_state
-        train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, wandb_active=False, quick_test=quick_test)
+        train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, wandb_active=False, quick_test=quick_test, vertex=vertex)
     
 @app.command()
 def train_wandb(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol: str = "Simple_Generators", discol: str = "Simple_Discriminators") -> None:
@@ -96,7 +98,7 @@ def logging_loss(wandb_active, dictlog : dict[any, any]):
     if wandb_active:
         wandb.log(dictlog)
 
-def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False, quick_test: bool = False) -> None:
+def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False, quick_test: bool = False, vertex: bool = False) -> None:
 
     """Training step for the GAN.
     
@@ -111,6 +113,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     latent_space_size -- How big is the latent space for the Generator?
     wandb_active -- Is wandb logging to be used or not?
     quick_test -- Use a smaller dataset for pytest?
+    vertex -- Is vertex being used? If so, load the data from the gcs directory
     """
     
     # Fix random state to ensure reproducability.
@@ -118,7 +121,9 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
 
 
     # Setup dataloading from data.py
-    if quick_test:
+    if vertex:
+        main_dataset = cifar100(out_data=gcs_data)
+    elif quick_test:
         main_dataset = cifar100_test()
     else:
         main_dataset = cifar100()

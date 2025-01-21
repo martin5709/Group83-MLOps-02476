@@ -30,12 +30,6 @@ jobs:
           pip install -r requirements_dev.txt
           pip install -e .
           pip list
-
-      - name: Setup temp folder
-        run: |
-          cd CNNDetection
-          mkdir tmp
-          cd ..
       
       - name: Auth with GCP
         uses: google-github-actions/auth@v2

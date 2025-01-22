@@ -84,7 +84,7 @@ for i in range(n):
     df_new.loc[i] = img_features[0].detach().numpy()
 
 
-report = Report(metrics=[DataDriftPreset()])
+report = Report(metrics=[DataDriftPreset(), DataQualityPreset,TargetDriftPreset])
 report.run(reference_data=df_old, current_data=df_new)
 report.save_html('CLIP_report.html')
 

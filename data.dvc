@@ -17,12 +17,8 @@ outs:
         etag: 08cee987b1d2868b031001
         version_id: '1737456644912334'
   - relpath: processed/train_images.pt
-    md5: 50b1027358cbd82926b04665f8bb2792
-    size: 614401205
-    cloud:
-      remote_storage:
-        etag: 08dce2e5bcd2868b031001
-        version_id: '1737456669520220'
+    md5: d41d8cd98f00b204e9800998ecf8427e
+    size: 0
   - relpath: raw/.gitkeep
     md5: d41d8cd98f00b204e9800998ecf8427e
     size: 0

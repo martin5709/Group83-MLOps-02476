@@ -5,47 +5,44 @@ import torchvision.datasets as datasets
 import pandas as pd
 import torch
 from google.cloud import storage
+import os
 
 from evidently.report import Report
 from evidently.metric_preset import DataDriftPreset, DataQualityPreset,TargetDriftPreset
 
 DATA_BUCKET = "1797480b-392d-46d1-be40-af7e3b95936b"
-
-def load_data_from_cloud(file):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(DATA_BUCKET)
-    blob = bucket.blob(file)
-    blob.download_to_filename(file)
-    print(f"Model {file} downloaded from {DATA_BUCKET}.")
-    return
-
-model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-
-load_data_from_cloud("data/processed/train_images.pt")
-load_data_from_cloud("data/processed/new_images.pt")
-
-training_data = torch.load("data/processed/train_images.pt")
-svhn = datasets.SVHN(root='data', download=True)
-
-df_cifar = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])
-df_svhn = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])
-
-n = 100
-for i in range(n):
-    cifar_data = cifar.data[i]
-    inputs = processor(text=None, images=cifar_data, return_tensors="pt", padding=True)
-
-    img_features = model.get_image_features(inputs["pixel_values"])
-    df_cifar.loc[i] = img_features[0].detach().numpy()
-
-    svhn_data = svhn.data[i]
-    inputs = processor(text=None, images=svhn_data, return_tensors="pt", padding=True)
-
-    img_features = model.get_image_features(inputs["pixel_values"])
-    df_svhn.loc[i] = img_features[0].detach().numpy()
+FILE_NAME = "train_images.pt"
+FILE_PATH = "data/processed"
 
 
-report = Report(metrics=[DataDriftPreset()])
-report.run(reference_data=df_cifar, current_data=df_svhn)
-report.save_html('reports/CLIP_report.html')
+def download_data():
+  """Downloads the previous version of an object from Google Cloud Storage.
+
+  Args:
+    bucket_name: The name of the bucket.
+    object_name: The name of the object.
+
+  Returns:
+    The path to the downloaded file or None if no previous version exists.
+  """
+
+  storage_client = storage.Client()
+  blobs = storage_client.list_blobs(DATA_BUCKET, prefix="data/processed/",versions=True)
+  blobs = [blob for blob in blobs if blob.name.endswith('.pt')]
+
+  for blob in blobs:
+    print(f"{blob.name},{blob.generation}")
+
+
+  print(f"Downloaded old and new data")
+  return None
+
+download_data()
+old_data =torch.load("old.pt")
+new_data =torch.load("new.pt")
+print(old_data.shape)
+print("Data downloaded successfully")
+
+# Cleanup
+os.remove("old.pt")
+os.remove("new.pt")

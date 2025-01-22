@@ -2,20 +2,10 @@ outs:
 - hash: md5
   path: data
   files:
-  - relpath: processed/.gitkeep
-    md5: d41d8cd98f00b204e9800998ecf8427e
-    size: 0
-    cloud:
-      remote_storage:
-        etag: 08f4d4e0a5cc868b031001
-        version_id: '1737455010589300'
   - relpath: processed/test_images.pt
-    md5: 71a2411e7b4168fc7643a60021dada12
+    md5: 4f640ea2e027b86477d5ffd6802a8acf
     size: 122881200
-    cloud:
-      remote_storage:
-        etag: 08cee987b1d2868b031001
-        version_id: '1737456644912334'
+    isexec: true
   - relpath: processed/train_images.pt
     md5: 50b1027358cbd82926b04665f8bb2792
     size: 614401205
@@ -28,8 +18,57 @@ outs:
     size: 0
     cloud:
       remote_storage:
-        etag: 08a585eea5cc868b031001
-        version_id: '1737455010808485'
+        etag: 08829ea4c2bf898b031001
+        version_id: '1737554659970818'
+  - relpath: raw/cifar-10-batches-py/data_batch_2
+    md5: d4bba439e000b95fd0a9bffe97cbabec
+    size: 31035320
+    cloud:
+      remote_storage:
+        etag: 08e4d08bc4bf898b031001
+        version_id: '1737554663762020'
+  - relpath: raw/cifar-10-batches-py/data_batch_3
+    md5: 54ebc095f3ab1f0389bbae665268c751
+    size: 31035999
+    cloud:
+      remote_storage:
+        etag: 08f6a9f1c4bf898b031001
+        version_id: '1737554665428214'
+  - relpath: raw/cifar-10-batches-py/data_batch_4
+    md5: 634d18415352ddfa80567beed471001a
+    size: 31035696
+    cloud:
+      remote_storage:
+        etag: 08d1c3dac3bf898b031001
+        version_id: '1737554662957521'
+  - relpath: raw/cifar-10-batches-py/data_batch_5
+    md5: 482c414d41f54cd18b22e5b47cb7c3cb
+    size: 31035623
+    cloud:
+      remote_storage:
+        etag: 08b797a4c2bf898b031001
+        version_id: '1737554659969975'
+  - relpath: raw/cifar-10-batches-py/readme.html
+    md5: 82949b010606e8171045e61c60921d12
+    size: 88
+    cloud:
+      remote_storage:
+        etag: 08d994c8bcbf898b031001
+        version_id: '1737554647976537'
+  - relpath: raw/cifar-10-batches-py/test_batch
+    md5: 40351d587109b95175f43aff81a1287e
+    size: 31035526
+    cloud:
+      remote_storage:
+        etag: 0886c1a0c4bf898b031001
+        version_id: '1737554664104070'
+  - relpath: raw/cifar-10-python.tar.gz
+    md5: c58f30108f718f92721af3b95e74349a
+    size: 170498071
+    cloud:
+      remote_storage:
+        etag: 08dde397bcbf898b031001
+        version_id: '1737554647183837'
   - relpath: raw/cifar-100-python.tar.gz
     md5: eb9058c3a382ffc7106e4002c42a8d85
     size: 169001437

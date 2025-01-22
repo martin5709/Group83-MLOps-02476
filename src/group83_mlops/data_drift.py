@@ -16,26 +16,30 @@ FILE_PATH = "data/processed"
 
 
 def download_data():
-  """Downloads the previous version of an object from Google Cloud Storage.
+    storage_client = storage.Client()
+    blobs = storage_client.list_blobs(DATA_BUCKET, prefix="data/processed/",versions=True)
+    blobs = [blob for blob in blobs if blob.name.endswith('train_images.pt')]
 
-  Args:
-    bucket_name: The name of the bucket.
-    object_name: The name of the object.
+    for blob in blobs:
+        print(f"{blob.name},{blob.generation}")
 
-  Returns:
-    The path to the downloaded file or None if no previous version exists.
-  """
+    blobs.sort(key=lambda x: x.generation, reverse=True)
 
-  storage_client = storage.Client()
-  blobs = storage_client.list_blobs(DATA_BUCKET, prefix="data/processed/",versions=True)
-  blobs = [blob for blob in blobs if blob.name.endswith('.pt')]
+    # Download the latest version
+    latest_blob = blobs[0]
+    latest_blob.download_to_filename("new.pt")
+    print(f"Downloaded latest version: {latest_blob.name}, generation: {latest_blob.generation}")
 
-  for blob in blobs:
-    print(f"{blob.name},{blob.generation}")
+    # Download the previous version if it exists
+    if len(blobs) > 1:
+        previous_blob = blobs[1]
+        previous_blob.download_to_filename("old.pt")
+        print(f"Downloaded previous version: {previous_blob.name}, generation: {previous_blob.generation}")
+    else:
+        print("No previous version found.")
 
-
-  print(f"Downloaded old and new data")
-  return None
+    print(f"Downloaded old and new data")
+    return None
 
 download_data()
 old_data =torch.load("old.pt")

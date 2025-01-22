@@ -19,6 +19,10 @@ outs:
   - relpath: processed/train_images.pt
     md5: 50b1027358cbd82926b04665f8bb2792
     size: 614401205
+    cloud:
+      remote_storage:
+        etag: 08dde3bfcaba898b031001
+        version_id: '1737553335022045'
   - relpath: raw/.gitkeep
     md5: d41d8cd98f00b204e9800998ecf8427e
     size: 0

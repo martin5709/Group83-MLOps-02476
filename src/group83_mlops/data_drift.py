@@ -6,9 +6,17 @@ import pandas as pd
 import torch
 from google.cloud import storage
 import os
+import matplotlib.pyplot as plt
 
 from evidently.report import Report
 from evidently.metric_preset import DataDriftPreset, DataQualityPreset,TargetDriftPreset
+
+model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+
+from torchvision.transforms import ToPILImage
+
+to_pil = ToPILImage()
 
 DATA_BUCKET = "1797480b-392d-46d1-be40-af7e3b95936b"
 FILE_NAME = "train_images.pt"
@@ -42,11 +50,45 @@ def download_data():
     return None
 
 download_data()
-old_data =torch.load("old.pt")
-new_data =torch.load("new.pt")
-print(old_data.shape)
+old_data =torch.load("old.pt", weights_only = False).float()
+new_data =torch.load("new.pt", weights_only = False).float()
+
+new_mean = torch.tensor([0.5071, 0.4865, 0.4409])
+new_mean = new_mean[None,None,None,:]
+new_std = torch.tensor([0.2673, 0.2564, 0.2762])
+new_std = new_std[None,None,None,:]
+
+old_data =  old_data * new_std + new_mean
+new_data = new_data * new_std + new_mean
+
+old_data = old_data.permute( (0, 3, 1, 2))
+new_data = new_data.permute( (0, 3, 1, 2))
+
 print("Data downloaded successfully")
 
+df_old = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])
+df_new = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])
+
+n = 100
+for i in range(n):
+    old = old_data[i,:,:,:]
+    new = new_data[i,:,:,:]
+    inputs = processor(text=None, images=old, return_tensors="pt", padding=True)
+
+    img_features = model.get_image_features(inputs["pixel_values"])
+    df_old.loc[i] = img_features[0].detach().numpy()
+
+    inputs = processor(text=None, images=new, return_tensors="pt", padding=True)
+
+    img_features = model.get_image_features(inputs["pixel_values"])
+    df_new.loc[i] = img_features[0].detach().numpy()
+
+
+report = Report(metrics=[DataDriftPreset()])
+report.run(reference_data=df_old, current_data=df_new)
+report.save_html('CLIP_report.html')
+
 # Cleanup
+print("Hej")
 os.remove("old.pt")
 os.remove("new.pt")

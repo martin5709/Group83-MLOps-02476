@@ -20,7 +20,7 @@ ENTRYPOINT ["uvicorn", "src/group83_mlops/api:app", "--host", "0.0.0.0", "--port
 
 # europe-west1-docker.pkg.dev/mlops-project-group83/docker-images
 
-# docker build -t api_image -f api.dockerfile .
+# docker build -t api_image -f dockerfiles/api.dockerfile .
 
 # docker tag api_image europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/api_image:latest
 

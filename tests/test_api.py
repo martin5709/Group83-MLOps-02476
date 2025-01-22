@@ -1,6 +1,6 @@
 import requests
 
-url = "http://127.0.0.1:8000/generate"
+url = "https://api-image-5307485050.europe-west1.run.app/generate"
 review = "Lav mig et billede"
 response = requests.post(url, json={"request": review})
 

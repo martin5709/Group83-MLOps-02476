@@ -17,6 +17,7 @@ from resnet import resnet50  # noqa: E402
 from fun import get_synth_prob # noqa: E402
 
 gcs_data = '/gcs/1797480b-392d-46d1-be40-af7e3b95936b/data/processed'
+gcs_model = '/gcs/mlops-model-repo'
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 app = typer.Typer()
@@ -214,6 +215,8 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
 
 
     trained_path = "models"
+    if vertex:
+        trained_path = gcs_model
     trained_generator_name = "simple_generator.pth"
     trained_discriminator_name = "simple_discriminator.pth"
     tg = trained_path + "/" + trained_generator_name
@@ -226,9 +229,10 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     finalise_wandb(wandb_active, run, tg, td, gencol, discol)
 
     # Remove the large models from local machine
-    os.remove(tg)
-    os.remove(td)
-    os.remove(output_path)
+    if not vertex:
+        os.remove(tg)
+        os.remove(td)
+        os.remove(output_path)
 
 if __name__ == "__main__":
     app()

@@ -74,6 +74,7 @@ def train(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k
                 # Get idea of loss
                 if i % 100 == 0 and j == k_discriminator - 1:
                     print(f"Epoch {epoch}, iter {i}, dis loss: {loss.item()}")
+                        print("Testing ruff linter")
             
             # Part 2 -- Update the generator to try to trick the discriminator
             gen_model.train()

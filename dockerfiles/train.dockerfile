@@ -13,5 +13,6 @@ COPY pyproject.toml pyproject.toml
 
 RUN pip install -r requirements.txt --no-cache-dir
 RUN pip install . --no-deps --no-cache-dir --verbose
+RUN /usr/bin/wget https://www.dropbox.com/s/2g2jagq2jn1fd0i/blur_jpg_prob0.5.pth?dl=0 -O CNNDetection/weights/blur_jpg_prob0.5.pth
 
-ENTRYPOINT ["python", "src/group83_mlops/train.py train-hydra"]
+ENTRYPOINT ["python", "src/group83_mlops/train.py", "train-hydra", "--vertex"]

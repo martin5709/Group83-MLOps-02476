@@ -4,16 +4,16 @@ import pytest
 
 def test_gen_latent_space_type():
     """Test that the latent space type is checked for the generator"""
-    gen_model = Generator(latent_space_size=1000)
+    Generator(latent_space_size=1000)
     with pytest.raises(AttributeError):
-        gen_model = Generator(latent_space_size='1000')
+        Generator(latent_space_size='1000')
 
 def test_gen_latent_space_size():
     """Test that the integer bounds are respected for the generator latent space"""
-    gen_model = Generator(latent_space_size=1)
+    Generator(latent_space_size=1)
     with pytest.raises(ValueError):
-        gen_model = Generator(latent_space_size=0)
-        gen_model = Generator(latent_space_size=-1)
+        Generator(latent_space_size=0)
+        Generator(latent_space_size=-1)
 
 def test_gen_output_space_size():
     """Check that the output of the generator is between -1 and 1, and throw an error, if no input is sufficiently negative or positive"""

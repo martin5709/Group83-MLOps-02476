@@ -12,7 +12,7 @@ def test_data():
     dt.preprocess_data("data/raw", "data/processed")
     main_dataset = dt.cifar100()
     main_dataloader = torch.utils.data.DataLoader(main_dataset, batch_size=64)
-    
+
     assert type(main_dataset)== torch.Tensor , f"Expected main_dataset to be a torch.Tensor; however, it is of type {type(main_dataset)} "
     assert main_dataset.size(dim=1)  == 32, f'Expected main_dataset.size(dim=1)= 32; however, at dim = 1, has size {main_dataset.size(dim=1)}'
     assert main_dataset.size(dim=2)  == 32, f'Expected main_dataset.size(dim=2)= 32; however, at dim = 2, has size {main_dataset.size(dim=2)}'
@@ -30,10 +30,3 @@ def test_data():
     assert type(main_dataloader)== torch.utils.data.dataloader.DataLoader , f"Expected main_dataset to be a torch.Tensor; however, it is of type {type(main_dataloader)} "
 
     # assert True == False, 'flush print'
-
-
-
-
-
-
-

@@ -1,5 +1,3 @@
-import requests
-from PIL import Image
 from transformers import CLIPModel, CLIPProcessor
 import torchvision.datasets as datasets
 import pandas as pd
@@ -7,7 +5,7 @@ import torch
 from google.cloud import storage
 
 from evidently.report import Report
-from evidently.metric_preset import DataDriftPreset, DataQualityPreset,TargetDriftPreset
+from evidently.metric_preset import DataDriftPreset
 
 DATA_BUCKET = "1797480b-392d-46d1-be40-af7e3b95936b"
 
@@ -33,7 +31,7 @@ df_svhn = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])
 
 n = 100
 for i in range(n):
-    cifar_data = cifar.data[i]
+    cifar_data = df_cifar.data[i]
     inputs = processor(text=None, images=cifar_data, return_tensors="pt", padding=True)
 
     img_features = model.get_image_features(inputs["pixel_values"])

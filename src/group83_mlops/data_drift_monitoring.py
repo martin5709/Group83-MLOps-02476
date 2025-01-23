@@ -15,7 +15,6 @@ import requests
 from PIL import Image
 from transformers import CLIPModel, CLIPProcessor
 import torch
-from google.cloud import storage
 from torchvision.transforms import ToPILImage
 import random
 
@@ -123,6 +122,7 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/report", response_class=HTMLResponse)
 async def get_report(n: int = 100):
     """Generate and return the report."""
+    print(n)
     df_old, df_new = data_2_csvs(n_images_check = n)
     report = Report(metrics=[DataDriftPreset(), DataQualityPreset(),TargetDriftPreset()])
     report.run(reference_data=df_old, current_data=df_new)

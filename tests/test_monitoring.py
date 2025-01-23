@@ -2,7 +2,7 @@ import requests
 
 url = "http://127.0.0.1:8000/report"
 n = 10
-response = requests.post(url)
+response = requests.post(url, json={"n":n})
 # response = requests.post(url, json={"n": n})
 
 if response.status_code == 200:

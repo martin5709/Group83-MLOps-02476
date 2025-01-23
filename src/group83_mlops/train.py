@@ -8,14 +8,13 @@ from torchvision.transforms import ToPILImage
 from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100, cifar100_test
 import subprocess
-import json
 
 # Loading the model from CNNDetect
 import sys
 sys.path.append('CNNDetection/networks')
 sys.path.append('CNNDetection')
-from resnet import resnet50
-from fun import get_synth_prob
+from resnet import resnet50  # noqa: E402
+from fun import get_synth_prob # noqa: E402
 
 gcs_data = '/gcs/1797480b-392d-46d1-be40-af7e3b95936b/data/processed'
 
@@ -46,7 +45,7 @@ def train_hydra(experiment: str = "exp1", quick_test: bool = False, vertex: bool
         learning_rate = cfg.hyperparameters.learning_rate
         random_state = cfg.hyperparameters.random_state
         train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, wandb_active=False, quick_test=quick_test, vertex=vertex)
-    
+
 @app.command()
 def train_wandb(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol: str = "Simple_Generators", discol: str = "Simple_Discriminators") -> None:
     train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, gencol=gencol, discol=discol, wandb_active=True)
@@ -101,7 +100,7 @@ def logging_loss(wandb_active, dictlog : dict[any, any]):
 def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False, quick_test: bool = False, vertex: bool = False) -> None:
 
     """Training step for the GAN.
-    
+
     Each epoch is made of steps, which is some fraction of the total dataset.
 
     Keyword arguments:
@@ -115,7 +114,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     quick_test -- Use a smaller dataset for pytest?
     vertex -- Is vertex being used? If so, load the data from the gcs directory
     """
-    
+
     # Fix random state to ensure reproducability.
     torch.manual_seed(random_state)
 
@@ -164,7 +163,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
                 # Provide real images
                 dis_opt.zero_grad()
                 real_loss = dis_loss(dis_model(real_images), declare_real)
-                
+
                 # Provide fake images
                 fake_loss = dis_loss(dis_model(fake_images), declare_fake)
                 loss = (real_loss + fake_loss) / 2
@@ -175,9 +174,9 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
                 logging_loss(wandb_active, {"Discriminator_loss": loss.item()})
 
                 # Get idea of loss
-                # if i % 100 == 0 and j == k_discriminator - 1:
-                #     print(f"Epoch {epoch}, iter {i}, dis loss: {loss.item()}")
-            
+                if i % 100 == 0 and j == k_discriminator - 1:
+                    print(f"Epoch {epoch}, iter {i}, dis loss: {loss.item()}")
+
             # Part 2 -- Update the generator to try to trick the discriminator
             gen_model.train()
             dis_model.eval()
@@ -192,7 +191,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
             gen_opt.zero_grad()
             loss = gen_loss(dis_model(gen_model(z)), declare_real)
             loss.backward()
-            gen_opt.step()  
+            gen_opt.step()
             logging_loss(wandb_active, {"Generator_loss": loss.item()})
 
             # Get idea of loss
@@ -205,9 +204,9 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
                 image_for_logging = image_for_logging.view(3, 32, 32).detach().cpu().numpy()
                 image_for_logging = image_for_logging.transpose(1, 2, 0)
                 logging_loss(wandb_active, {"Generated_image": [wandb.Image(image_for_logging)]})
-                
-                image = to_pil(image_for_logging) 
-                output_path = os.path.join(output_dir, f"fake.png")
+
+                image = to_pil(image_for_logging)
+                output_path = os.path.join(output_dir, "fake.png")
                 image.save(output_path)
                 prob = get_synth_prob(cnn_det_model, output_path, DEVICE)
                 logging_loss(wandb_active, {"Synthetic prob": prob})

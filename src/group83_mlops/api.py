@@ -1,16 +1,13 @@
 from contextlib import asynccontextmanager
 
 import torch
-import torch.nn as nn
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from google.cloud import storage
 import datetime
-import json
 from group83_mlops.model import Generator
 from io import BytesIO
-from PIL import Image
 
 from torchvision.transforms import ToPILImage
 
@@ -56,12 +53,12 @@ def upload_to_cloud(image):
     storage_client = storage.Client()
     bucket = storage_client.bucket(BUCKET)
     time = datetime.datetime.now(tz=datetime.UTC)
-    
+
     # Save the PIL image to a byte stream
     byte_stream = BytesIO()
     image.save(byte_stream, format='PNG')
     byte_stream.seek(0)
-    
+
     # Prepare the blob and upload the image
     blob = bucket.blob(f"image_{time}.png")
     blob.upload_from_file(byte_stream, content_type='image/png')
@@ -81,15 +78,15 @@ async def predict_sentiment(review_input: Input):
             gen_img = model.forward(z)
             gen_img = gen_img.view(3, 32, 32)
             gen_img = 0.5 * (gen_img + 1)
-        
+
         image = to_pil(gen_img)
-            
+
         upload_to_cloud(image)
 
         byte_stream = BytesIO()
         image.save(byte_stream, format='PNG')
         byte_stream.seek(0)
-        
+
         return StreamingResponse(byte_stream, media_type="image/png")
 
     except Exception as e:

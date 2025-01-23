@@ -211,7 +211,7 @@ To setup an exact copy of the development environment, the following steps shoul
 
 We have used most of the stuff from the Cookiecutter template, e.g. `src`, `models` and `data`. The only thing we did not end up using was the `notebooks` folder, as we never ended up actually making any.
 
-We have added a folder called `CNNDetection`, mainly for the reason of clear distinction between code we wrote, and code we "borrowed" from others. 
+We have added a folder called `CNNDetection`, mainly for the reason of clear distinction between code we wrote, and code we "borrowed" from others.
 
 ### Question 6
 
@@ -332,7 +332,7 @@ Data version control would definitely be helpful in a scenario where we actually
 >
 > Answer:
 
-We ended up setting up two training commands, one using hydra and one using wandb, both of which are called with the `invoke` framework. So we would call either 
+We ended up setting up two training commands, one using hydra and one using wandb, both of which are called with the `invoke` framework. So we would call either
 
 `invoke train-hydra --experiment.yaml` or `invoke train-wandb --arg1...`
 
@@ -404,6 +404,15 @@ Hydra solves the issue of reproducability by simply requiring a config file to r
 > *run of our main code at some point that showed ...*
 >
 > Answer:
+Experiments can have a lot of meanings.
+
+For general python files we used the debugger within python, e.g. for vscode we setup breakpoints and saw the states of the code at its point of failure.
+
+When training on the cloud computer caused issues, we used the information provided by google cloud, e.g. logs and error messages to debug the problem.
+
+We ensured that actions on github, which included linter checks and unit tests were performed pre-commit so appropriate actions could be taken before merging with the main branch.
+
+Right after training, we profiled the code but time constraints did not allow us to make the code faster.
 
 --- question 16 fill here ---
 

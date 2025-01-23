@@ -44,11 +44,11 @@ def download_data():
     if len(blobs) > 1:
         previous_blob = blobs[1]
         previous_blob.download_to_filename("old.pt")
-        print(f"Downloaded previous version: {previous_blob.name}, generation: {previous_blob.generation}")
+        print("WOW! Versioning acually fucking works. I have downloaded two versions of your dat :D")
     else:
         backup_blob = storage_client.bucket(BACKUP_BUCKET).blob(BACKUP_NAME)
         backup_blob.download_to_filename("old.pt")
-        print(f"Your versioning is fucked, dowloaded CIFAR10 dataset from backup instead")
+        print(f"Versioning is fucked again, dowloaded CIFAR10 dataset from backup instead")
 
     print(f"Downloaded old and new data")
     return None

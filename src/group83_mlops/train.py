@@ -8,6 +8,7 @@ from torchvision.transforms import ToPILImage
 from group83_mlops.model import Generator, Discriminator
 from group83_mlops.data import cifar100, cifar100_test
 import subprocess
+import platform
 
 # Loading the model from CNNDetect
 import sys
@@ -28,7 +29,11 @@ output_dir = "CNNDetection/tmp"
 cnn_det_model = resnet50(num_classes=1)
 cnn_model = "CNNDetection/weights/blur_jpg_prob0.5.pth"
 if not os.path.exists(cnn_model):
-    subprocess.call(['sh', './CNNDetection/weights/download_weights.sh'])
+    if platform.system() == "Windows":
+        subprocess.call(['powershell.exe', './CNNDetection/weights/download_weights.ps1'])
+    else:
+        subprocess.call(['sh', './CNNDetection/weights/download_weights.sh'])
+
 state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu', weights_only=True)
 cnn_det_model.load_state_dict(state_dict['model'])
 cnn_det_model.to(DEVICE)

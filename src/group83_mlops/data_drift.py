@@ -38,37 +38,34 @@ def download_data():
     # Download the latest version
     latest_blob = blobs[0]
     latest_blob.download_to_filename("new.pt")
-    print(f"Downloaded latest version: {latest_blob.name}, generation: {latest_blob.generation}")
+    print(f"Downloaded latest version of your data")
 
     # Download the previous version if it exists
     if len(blobs) > 1:
         previous_blob = blobs[1]
         previous_blob.download_to_filename("old.pt")
-        print("WOW! Versioning acually fucking works. I have downloaded two versions of your dat :D")
+        print("WOW! Versioning acually fucking works. I have downloaded two versions of your data :D")
     else:
         backup_blob = storage_client.bucket(BACKUP_BUCKET).blob(BACKUP_NAME)
         backup_blob.download_to_filename("old.pt")
         print(f"Versioning is fucked again, dowloaded CIFAR10 dataset from backup instead")
-
-    print(f"Downloaded old and new data")
     return None
 
 download_data()
 old_data =torch.load("old.pt", weights_only = False).float()
 new_data =torch.load("new.pt", weights_only = False).float()
 
-# new_mean = torch.tensor([0.5071, 0.4865, 0.4409])
-# new_mean = new_mean[None,None,None,:]
-# new_std = torch.tensor([0.2673, 0.2564, 0.2762])
-# new_std = new_std[None,None,None,:]
+new_mean = torch.tensor([0.5071, 0.4865, 0.4409])
+new_mean = new_mean[None,None,None,:]
+new_std = torch.tensor([0.2673, 0.2564, 0.2762])
+new_std = new_std[None,None,None,:]
 
-# old_data =  old_data * new_std + new_mean
-# new_data = new_data * new_std + new_mean
+old_data =  old_data * new_std + new_mean
+new_data = new_data * new_std + new_mean
 
 old_data = old_data.permute( (0, 3, 1, 2))
 new_data = new_data.permute( (0, 3, 1, 2))
 
-print("Data downloaded successfully")
 
 df_old = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])
 df_new = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])

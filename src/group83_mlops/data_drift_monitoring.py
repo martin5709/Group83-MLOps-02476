@@ -5,30 +5,24 @@ from pathlib import Path
 import anyio
 import nltk
 import pandas as pd
-from evidently.metric_preset import TargetDriftPreset, TextEvals
+from evidently.metric_preset import TargetDriftPreset, DataDriftPreset, DataQualityPreset,TargetDriftPreset
 from evidently.report import Report
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from google.cloud import storage
 
+import requests
+from PIL import Image
+from transformers import CLIPModel, CLIPProcessor
+import torch
+from google.cloud import storage
+from torchvision.transforms import ToPILImage
+import random
+
 nltk.download("words")
 nltk.download("wordnet")
 nltk.download("omw-1.4")
 
-import requests
-from PIL import Image
-from transformers import CLIPModel, CLIPProcessor
-import torchvision.datasets as datasets
-import pandas as pd
-import torch
-from google.cloud import storage
-import os
-import matplotlib.pyplot as plt
-from torchvision.transforms import ToPILImage
-import random
-
-from evidently.report import Report
-from evidently.metric_preset import DataDriftPreset, DataQualityPreset,TargetDriftPreset
 
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")

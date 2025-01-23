@@ -16,7 +16,8 @@ to_pil = ToPILImage()
 # Define model and device configuration
 MODEL_NAME = "simple-generator"
 MODEL_FILE = "simple_generator.pth"
-BUCKET = "0e6b97bf-6590-4dc4-b464-08f9e1cb2ae7"
+BUCKET_IMG = "0e6b97bf-6590-4dc4-b464-08f9e1cb2ae7"
+BUCKET_MODEL = "mlops-model-repo"
 LATENT_SPACE_SIZE = 1000
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -28,10 +29,10 @@ class Input(BaseModel):
 
 def load_model_from_cloud():
     storage_client = storage.Client()
-    bucket = storage_client.bucket(BUCKET)
+    bucket = storage_client.bucket(BUCKET_MODEL)
     blob = bucket.blob(MODEL_FILE)
     blob.download_to_filename(MODEL_FILE)
-    print(f"Model {MODEL_FILE} downloaded from {BUCKET}.")
+    print(f"Model {MODEL_FILE} downloaded from {BUCKET_MODEL}.")
     return
 
 @asynccontextmanager
@@ -51,7 +52,7 @@ async def lifespan(app: FastAPI):
 
 def upload_to_cloud(image):
     storage_client = storage.Client()
-    bucket = storage_client.bucket(BUCKET)
+    bucket = storage_client.bucket(BUCKET_IMG)
     time = datetime.datetime.now(tz=datetime.UTC)
 
     # Save the PIL image to a byte stream

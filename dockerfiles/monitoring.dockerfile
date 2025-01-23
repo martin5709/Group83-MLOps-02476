@@ -18,16 +18,14 @@ RUN pip install uvicorn
 
 EXPOSE $PORT
 
-# ENTRYPOINT ["uvicorn", "src/group83_mlops/api:app", "--host", "0.0.0.0", "--port", {$PORT}]
-CMD exec uvicorn "src.group83_mlops.api:app" --port $PORT --host 0.0.0.0 --workers 1
+CMD exec uvicorn "src.group83_mlops.data_drift_monitoring:app" --port $PORT --host 0.0.0.0 --workers 1
 
+# Commands to get this to the moooooon
 
-# europe-west1-docker.pkg.dev/mlops-project-group83/docker-images
+# docker build -t monitoring_image -f dockerfiles/data_drift_monitoring.dockerfile .
 
-# docker build -t api_image -f dockerfiles/api.dockerfile .
+# docker tag monitoring_image europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/monitoring_image:latest
 
-# docker tag api_image europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/api_image:latest
-
-# docker push europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/api_image:latest
+# docker push europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/monitoring_image:latest
 
 

@@ -35,7 +35,11 @@ if not os.path.exists(cnn_model):
         subprocess.call(['sh', './CNNDetection/weights/download_weights_mac.sh'])
     else:
         subprocess.call(['sh', './CNNDetection/weights/download_weights.sh'])
-state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu', weights_only=True)
+
+if platform.system() == "Darwin":
+    state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu', weights_only=False)
+else:
+    state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu', weights_only=True)
 cnn_det_model.load_state_dict(state_dict['model'])
 cnn_det_model.to(DEVICE)
 

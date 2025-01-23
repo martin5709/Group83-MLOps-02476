@@ -245,7 +245,9 @@ We have added a folder called `CNNDetection`, mainly for the reason of clear dis
 >
 > Answer:
 
---- question 7 fill here ---
+Test data has two functions, with a total of 8 "assert" statements. The first function test the type of dataset ensuring it is of the custom class. The first and last four "assert" statements of "test_data" ensure that the stored date is of "torch.Tensor", the third to fifth ensure specific dimensions, and the following two investigate the distribution, centered and normalised.
+Test Train, as it can be read in the documentation, does a simple test of the train hydra function, to make sure it can run without any errors, and that it runs for 1 epoch.
+Test model has four functions, with a total of 3 "raises(AttributeError)" and 4 "assert" statements. The first two functions ensure test the enforcement of the type and value of the input of the generator of our GAN model. The "test_gen_latent_space_type" tests the built in error cases, handled by raise AttributeError(), checking that only "int" type is accepted, whereas "test_gen_latent_space_size" checks that only non negative values are accepted. Then, the "test_gen_output_space_size" checks the values of the output of the generator, ensuring that they are contained and distributed in the interval of [-1.0,1.0]. Finally, the "test_dis_output_space_size"  checks the values of the output of the discriminator, ensuring that these are contained and distributed in the interval of [0,1.0]. Note that there are no tests for the input of the discriminator as this function does not require any.
 
 ### Question 8
 
@@ -260,7 +262,8 @@ We have added a folder called `CNNDetection`, mainly for the reason of clear dis
 >
 > Answer:
 
---- question 8 fill here ---
+On the github project, there is a tab called pull request, in it there is set up a bot that checks for coverage.
+In order to consult it, one opens the "Files Changed" tab. As of the moment of writing this, there is a 41% coverage. This value is updated every comit to the repository.
 
 ### Question 9
 
@@ -425,7 +428,7 @@ We ensured that actions on github, which included linter checks and unit tests w
 
 Right after training, we profiled the code but time constraints did not allow us to make the code faster.
 
---- question 16 fill here ---
+Regarding profiling, given that the model was initially designed to be a minimal viable product and not necessarily a state of the art, hyper efficient GAN, there obviously improvements to be made. As such, we did profile our code, in specific data.py, this was done early and at the time was the most established portion of our project. Somewhere, in a file that has since disappeared, there was proof that when profiling with "python -m cProfile ", the pre-process data was the most time consuming function within data.py. With this information, a closer investigation was done with "prof = profile(...)" inside the  pre-process data function. It was found that Dataloader was a unecessarly time consuming approach and thus it was changed to using TensorDataset. This change lead to lead to the portion of the code profile being reduced from self CPU time total of 8.069s to 1.100s.
 
 ## Working in the cloud
 

@@ -17,7 +17,7 @@ from resnet import resnet50  # noqa: E402
 from fun import get_synth_prob # noqa: E402
 
 gcs_data = '/gcs/1797480b-392d-46d1-be40-af7e3b95936b/data/processed'
-gcs_model = '/gcs/mlops-model-repo'
+gcs_model = '/gcs/0e6b97bf-6590-4dc4-b464-08f9e1cb2ae7'
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 app = typer.Typer()

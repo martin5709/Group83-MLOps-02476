@@ -1,0 +1,5 @@
+[core]
+    remote = remote_storage
+['remote "remote_storage"']
+    url = gs://1797480b-392d-46d1-be40-af7e3b95936b/
+    version_aware = true

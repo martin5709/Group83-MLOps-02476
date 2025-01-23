@@ -8,6 +8,7 @@ import torchvision.transforms as transforms
 import torch.utils.data
 import numpy as np
 from sklearn.metrics import average_precision_score, precision_recall_curve, accuracy_score
+from scipy import stats
 
 from networks.resnet import resnet50
 
@@ -77,13 +78,25 @@ with torch.no_grad():
 Hs, Ws = np.array(Hs), np.array(Ws)
 y_true, y_pred = np.array(y_true), np.array(y_pred)
 
-print('Average sizes: [{:2.2f}+/-{:2.2f}] x [{:2.2f}+/-{:2.2f}] = [{:2.2f}+/-{:2.2f} Mpix]'.format(np.mean(Hs), np.std(Hs), np.mean(Ws), np.std(Ws), np.mean(Hs*Ws)/1e6, np.std(Hs*Ws)/1e6))
-print('Num reals: {}, Num fakes: {}'.format(np.sum(1-y_true), np.sum(y_true)))
+# print('Average sizes: [{:2.2f}+/-{:2.2f}] x [{:2.2f}+/-{:2.2f}] = [{:2.2f}+/-{:2.2f} Mpix]'.format(np.mean(Hs), np.std(Hs), np.mean(Ws), np.std(Ws), np.mean(Hs*Ws)/1e6, np.std(Hs*Ws)/1e6))
+print('Number of real images: {}\nNumber of fake images: {}'.format(np.sum(1-y_true), np.sum(y_true)))
 
 if(not opt.size_only):
   r_acc = accuracy_score(y_true[y_true==0], y_pred[y_true==0] > 0.5)
   f_acc = accuracy_score(y_true[y_true==1], y_pred[y_true==1] > 0.5)
   acc = accuracy_score(y_true, y_pred > 0.5)
   ap = average_precision_score(y_true, y_pred)
+  # 'AP: {:2.2f}, 
+  print('\nImages in test data predicted as real: {:2.2f}%\nGenerated images predicted as real: {:2.2f}%'.format(  r_acc*100., (1-f_acc)*100.))
 
-  print('AP: {:2.2f}, Acc: {:2.2f}, Acc (real): {:2.2f}, Acc (fake): {:2.2f}'.format(ap*100., acc*100., r_acc*100., f_acc*100.))
+  n_real = int(np.sum(1-y_true))
+  n_fake = int(np.sum(y_true))
+  p_real = r_acc
+  p_fake = 1-f_acc
+
+  p_hat = (n_real * p_real + n_fake * p_fake) / (n_real + n_fake)
+  z = (p_real - p_fake) / np.sqrt(p_hat * (1 - p_hat) * (1/n_real + 1/n_fake))
+
+  p_value = 2 * (1 - stats.norm.cdf(abs(z)))
+  
+  print(f"Estimated p-value of these two being the same: p = {p_value:.4f}.")

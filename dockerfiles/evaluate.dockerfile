@@ -6,12 +6,12 @@ RUN apt update && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
 COPY src src/
-COPY CNNDetection CNNDetection/
-COPY configs configs/
 COPY requirements.txt requirements.txt
+COPY requirements_dev.txt requirements_dev.txt
+COPY README.md README.md
 COPY pyproject.toml pyproject.toml
 
-RUN pip install -r requirements.txt --no-cache-dir
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 RUN pip install . --no-deps --no-cache-dir --verbose
 
-ENTRYPOINT ["python", "src/group83_mlops/train.py train-hydra"]
+ENTRYPOINT ["python", "-u", "src/group83_mlops/evaluate.py"]

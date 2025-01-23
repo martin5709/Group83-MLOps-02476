@@ -1,0 +1,30 @@
+name: Check Largest File Size
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+
+jobs:
+  check_file:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: repo_location
+      
+      - name: Check largest file size
+        run: |
+          # Find all files in the checkout directory. Then calculate the byte size of each file using du. Then, sort in descending order, print the first of these, and finally get just the byte count using awk.
+          OUTPUT=$(find repo_location/ -type f -exec du -b {} + | sort -n -r | head -n 1 | awk '{print $1}')
+          if [ "$OUTPUT" -gt 8388608 ]
+          then
+            echo "File size exceeds 8 MB."
+            exit 1
+          else
+            echo "Largest file is within the limit, as it was $OUTPUT bytes."
+            exit 0
+          fi

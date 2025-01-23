@@ -8,6 +8,7 @@ RUN apt update && \
 
 COPY src src/
 COPY requirements.txt requirements.txt
+COPY requirements_dev.txt requirements_dev.txt
 COPY README.md README.md
 COPY pyproject.toml pyproject.toml
 

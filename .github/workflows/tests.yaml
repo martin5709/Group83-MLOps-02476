@@ -61,4 +61,3 @@ jobs:
               echo "Coverage File Missing!"
           fi
           coverage report -i -m --data-file=.coverage
-          coverage report -i -m --data-file=.coverage > TestCoverage.txt

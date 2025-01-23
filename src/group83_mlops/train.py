@@ -31,6 +31,8 @@ cnn_model = "CNNDetection/weights/blur_jpg_prob0.5.pth"
 if not os.path.exists(cnn_model):
     if platform.system() == "Windows":
         subprocess.call(['powershell.exe', './CNNDetection/weights/download_weights.ps1'])
+    elif platform.system() == "Darwin": # macos
+        subprocess.call(['sh', './CNNDetection/weights/download_weights_mac.sh'])
     else:
         subprocess.call(['sh', './CNNDetection/weights/download_weights.sh'])
 state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu', weights_only=True)

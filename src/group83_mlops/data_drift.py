@@ -21,6 +21,8 @@ to_pil = ToPILImage()
 DATA_BUCKET = "1797480b-392d-46d1-be40-af7e3b95936b"
 FILE_NAME = "train_images.pt"
 FILE_PATH = "data/processed"
+BACKUP_BUCKET = "e3d6e328-42fd-4297-b9e5-71375e160dc0"
+BACKUP_NAME = "train_images_CIFAR10.pt"
 
 
 def download_data():
@@ -44,7 +46,9 @@ def download_data():
         previous_blob.download_to_filename("old.pt")
         print(f"Downloaded previous version: {previous_blob.name}, generation: {previous_blob.generation}")
     else:
-        print("No previous version found.")
+        backup_blob = storage_client.bucket(BACKUP_BUCKET).blob(BACKUP_NAME)
+        backup_blob.download_to_filename("old.pt")
+        print(f"Your versioning is fucked, dowloaded CIFAR10 dataset from backup instead")
 
     print(f"Downloaded old and new data")
     return None
@@ -53,13 +57,13 @@ download_data()
 old_data =torch.load("old.pt", weights_only = False).float()
 new_data =torch.load("new.pt", weights_only = False).float()
 
-new_mean = torch.tensor([0.5071, 0.4865, 0.4409])
-new_mean = new_mean[None,None,None,:]
-new_std = torch.tensor([0.2673, 0.2564, 0.2762])
-new_std = new_std[None,None,None,:]
+# new_mean = torch.tensor([0.5071, 0.4865, 0.4409])
+# new_mean = new_mean[None,None,None,:]
+# new_std = torch.tensor([0.2673, 0.2564, 0.2762])
+# new_std = new_std[None,None,None,:]
 
-old_data =  old_data * new_std + new_mean
-new_data = new_data * new_std + new_mean
+# old_data =  old_data * new_std + new_mean
+# new_data = new_data * new_std + new_mean
 
 old_data = old_data.permute( (0, 3, 1, 2))
 new_data = new_data.permute( (0, 3, 1, 2))

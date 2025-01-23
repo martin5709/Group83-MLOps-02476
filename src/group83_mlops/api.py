@@ -60,7 +60,7 @@ def upload_to_cloud(image):
     byte_stream.seek(0)
 
     # Prepare the blob and upload the image
-    blob = bucket.blob(f"image_{time}.png")
+    blob = bucket.blob(f"/images/image_{time}.png")
     blob.upload_from_file(byte_stream, content_type='image/png')
     print("Prediction saved to GCP bucket.")
     return

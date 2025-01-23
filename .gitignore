@@ -187,3 +187,8 @@ hpc_logs/
 !.dvc
 /data
 gha-creds-*.json
+simple_generator.pth
+new.pt
+old.pt
+CLIP_report.html
+report.html

@@ -5,47 +5,91 @@ import torchvision.datasets as datasets
 import pandas as pd
 import torch
 from google.cloud import storage
+import os
+import matplotlib.pyplot as plt
 
 from evidently.report import Report
 from evidently.metric_preset import DataDriftPreset, DataQualityPreset,TargetDriftPreset
 
-DATA_BUCKET = "1797480b-392d-46d1-be40-af7e3b95936b"
-
-def load_data_from_cloud(file):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(DATA_BUCKET)
-    blob = bucket.blob(file)
-    blob.download_to_filename(file)
-    print(f"Model {file} downloaded from {DATA_BUCKET}.")
-    return
-
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
-load_data_from_cloud("data/processed/train_images.pt")
-load_data_from_cloud("data/processed/new_images.pt")
+from torchvision.transforms import ToPILImage
 
-training_data = torch.load("data/processed/train_images.pt")
-svhn = datasets.SVHN(root='data', download=True)
+to_pil = ToPILImage()
 
-df_cifar = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])
-df_svhn = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])
+DATA_BUCKET = "1797480b-392d-46d1-be40-af7e3b95936b"
+FILE_NAME = "train_images.pt"
+FILE_PATH = "data/processed"
+BACKUP_BUCKET = "e3d6e328-42fd-4297-b9e5-71375e160dc0"
+BACKUP_NAME = "train_images_CIFAR10.pt"
+
+
+def download_data():
+    storage_client = storage.Client()
+    blobs = storage_client.list_blobs(DATA_BUCKET, prefix="data/processed/",versions=True)
+    blobs = [blob for blob in blobs if blob.name.endswith('train_images.pt')]
+
+    for blob in blobs:
+        print(f"{blob.name},{blob.generation}")
+
+    blobs.sort(key=lambda x: x.generation, reverse=True)
+
+    # Download the latest version
+    latest_blob = blobs[0]
+    latest_blob.download_to_filename("new.pt")
+    print(f"Downloaded latest version of your data")
+
+    # Download the previous version if it exists
+    if len(blobs) > 1:
+        previous_blob = blobs[1]
+        previous_blob.download_to_filename("old.pt")
+        print("WOW! Versioning acually fucking works. I have downloaded two versions of your data :D")
+    else:
+        backup_blob = storage_client.bucket(BACKUP_BUCKET).blob(BACKUP_NAME)
+        backup_blob.download_to_filename("old.pt")
+        print(f"Versioning is fucked again, dowloaded CIFAR10 dataset from backup instead")
+    return None
+
+download_data()
+old_data =torch.load("old.pt", weights_only = False).float()
+new_data =torch.load("new.pt", weights_only = False).float()
+
+new_mean = torch.tensor([0.5071, 0.4865, 0.4409])
+new_mean = new_mean[None,None,None,:]
+new_std = torch.tensor([0.2673, 0.2564, 0.2762])
+new_std = new_std[None,None,None,:]
+
+old_data =  old_data * new_std + new_mean
+new_data = new_data * new_std + new_mean
+
+old_data = old_data.permute( (0, 3, 1, 2))
+new_data = new_data.permute( (0, 3, 1, 2))
+
+
+df_old = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])
+df_new = pd.DataFrame(columns=[f"feature_{i}" for i in range(512)])
 
 n = 100
 for i in range(n):
-    cifar_data = cifar.data[i]
-    inputs = processor(text=None, images=cifar_data, return_tensors="pt", padding=True)
+    old = old_data[i,:,:,:]
+    new = new_data[i,:,:,:]
+    inputs = processor(text=None, images=old, return_tensors="pt", padding=True)
 
     img_features = model.get_image_features(inputs["pixel_values"])
-    df_cifar.loc[i] = img_features[0].detach().numpy()
+    df_old.loc[i] = img_features[0].detach().numpy()
 
-    svhn_data = svhn.data[i]
-    inputs = processor(text=None, images=svhn_data, return_tensors="pt", padding=True)
+    inputs = processor(text=None, images=new, return_tensors="pt", padding=True)
 
     img_features = model.get_image_features(inputs["pixel_values"])
-    df_svhn.loc[i] = img_features[0].detach().numpy()
+    df_new.loc[i] = img_features[0].detach().numpy()
 
 
-report = Report(metrics=[DataDriftPreset()])
-report.run(reference_data=df_cifar, current_data=df_svhn)
-report.save_html('reports/CLIP_report.html')
+report = Report(metrics=[DataDriftPreset(), DataQualityPreset,TargetDriftPreset])
+report.run(reference_data=df_old, current_data=df_new)
+report.save_html('CLIP_report.html')
+
+# Cleanup
+print("Hej")
+os.remove("old.pt")
+os.remove("new.pt")

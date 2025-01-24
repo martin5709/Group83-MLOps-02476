@@ -696,7 +696,11 @@ Overall working in the cloud is a somewhat frustating experience, but well worth
 >
 > Answer:
 
-We did not implement anything not discussed in a previous question.
+Yes, we implemented Alert Systems in GCP, such that whenever a deployment of Cloud Run fails, a notification is sent by email. The same is also the case when a Vertex AI instance fails. We did this for convenience during debugging, such that one could move on to some other task while the systems were training, and then one would be notified over email when it failed.
+
+Likewise, we implemented distributed data loading using the `num_workers` parameter in the Dataloader. We did this in an effort to improve the training speed.
+
+Finally, a drift detection service was implemented, as detailed in our answers to the questions below.
 
 ### Question 29
 
@@ -718,6 +722,7 @@ We did not implement anything not discussed in a previous question.
 Our diagram is split into 5 colored regions, essentially just categorizing services we have used. Between services we have arrows. Starting at *Group 83* (the laptop left-center) it is possible to follow journeys of colored arrows through the landscape.
 
 **Models and code flow**
+
 In the local setup group members can work on individual branches of new features, once a feature is finished a pull request is sent to Github, where unit tests (and other standarizations) are run. If everything passes the members branch is merged into the main branch.
 
 On this the model flow is triggered. Cloud build starts building new docker images, which are stored in the artifact registry (we currently have 3, one for each of training, API and monitoring). The training image contains information on training loop and model, it is however missing hyperparameters, such as batch size and learning rate.
@@ -745,7 +750,7 @@ Data is pushed from the local setup to a Cloud Bucket, DVC ensures we keep track
 
 A large struggle was keeping up with version control, this included not just which package to import and their versions but also ensuring everyone had access to dvc, wandb and so forth.
 
-Large amount of times were dedicated to connect different services which also was hard to debug and the debugging process itself was error prone, as machines sometimes tend to differ in subtle ways.
+A large amount of time was dedicated to connecting the different services together. These were also hard to debug, and the debugging process itself was error prone, since the machines sometimes differ in subtle ways.
 
 We also saw some problems in the subtlety between git and github when using the command line, e.g. some commands are not available just using git and the workflow of github took a while to setup.
 
@@ -756,6 +761,8 @@ The second reason lies in reading logs from Google Cloud, when looking back at i
 The last reason is a specific error in configuring service accounts, we did not realise that accessing stuff from a bucket in cloud run was done from a service account, which did not have access to buckets. Much time was spent debugging this.
 
 To overcome this challenge we used TA's. They're a great resource when you're completely clueless of what an error could be, and were a great help in pointing out what we needed to look out for, when debugging on our own.
+
+Furthermore, the model training itself was also a challenge, since doing validation on GAN models is not trivial, and they take a long time to train, which in hindsight, would have been good to have kept in mind.
 
 ### Question 31
 

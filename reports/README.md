@@ -143,22 +143,19 @@ s203822, s243266, s205717, s205421, s203768
 >
 > Answer:
 
-For our project, we have used several open source, third party frameworks not covered in the course, such as [CNNDetection](https://github.com/PeterWang512/CNNDetection), and also [pytest-cov](https://pypi.org/project/pytest-cov/) (Not to be confused with `coverage`), etc.
+We will focus on `CNNDetection` here (we have also used other 3rd party libraries, such as [pytest-cov](https://pypi.org/project/pytest-cov/)). Since we use GANs, it is challenging to get validation metrics. `CNNDetection` is a library for detecting whether images are generated using CNN-based GANs. We can thus use this library to determine how AI-generated our images look.
 
-The most significant of these was `CNNDetection`, which is what we will focus on in this response. Since we are working with GANs (Generative Adversarial Networks), it can be hard to get proper validation metrics of which models perform well. Now, `CNNDetection` is a library, specialised in detecting whether an image was generated using CNN-based GANs ([See their page here](https://peterwang512.github.io/CNNDetection/)). Our idea is to exploit this library to essentially tell us "how AI-generated" our generated images look.
-
-`CNNDetection` has some interesting quirks, for one it predicts that $\sim 20\%$ of the CIFAR-100 dataset is AI-generated, so either our assumption of our training data being real is wrong, or, more likely, `CNNDetection` is not a perfect model. For this reason we have instead implemented the following procedure for evaluation:
-
-1. We generate $n_{fake}$ images with our model, and sample another  $n_{real}$ images from the CIFAR-100 test set.
+We use it as follows:
+1. We generate $n_{fake}$ images with our model, and sample another $n_{real}$ images from the CIFAR-100 test set.
 2. We run the `CNNDetection` algorithm on both sets, logging the percentage of images it denotes as `real` in each set $p_{real}$ and $p_{fake}$.
-3. We then run a statistical test for wether $ p_{real} = p_{fake} $, essentially assuming that if these two are the same, then our generator creates images similar to the training data.
+3. We then run a statistical test for whether $ p_{real} = p_{fake} $, essentially assuming that if these two are the same, then our generator creates images similar to the training data.
 
 $$ z = \frac{(p_{real }- p_{fake})}  {\sqrt{\hat{p} \cdot (1 - \hat{p}) \cdot (\frac{1}{n_{real}}  + \frac{1}{n_{fake}} )}},  $$
 where
 $$ \hat{p}= \frac{n_{real} \cdot p_{real} + n_{fake} \cdot p_{fake}}{n_{real} + n_{fake}}, $$
 which is compared to a standard normal distribution, to get a p-values.
 
-Now, `CNNDetection` did *not* end up being a significant part of our project. we have implemented the above test, to take a trained model an evaluate it. The ideal scenario would be to use the same algorithm during training, to evaluate the current model (essentially just an extra pre-trained non-fluctuating discriminator), perhaps even having a `wandb` sweep try to maximize a p-value. However, `CNNDetection` is, very interestingly, quite certain that random noise is *not* AI-generated, which means that our initial models, before training, acutally perform quite well using this metric... which makes optimization weird. It's also quite slow to do this.
+The library did help us complete the project, but it is a bit weird, since it is certain that random noise is *not* AI-generated.
 
 
 ## Coding environment
@@ -179,7 +176,7 @@ Now, `CNNDetection` did *not* end up being a significant part of our project. we
 >
 > Answer:
 
-For managing our dependencies, we used a combination of `conda` and `pip`. The list of dependencies for the project was managed (and hence auto-generated) using `pipreqs` to write the `requirements.txt` file, and then, to avoid overlaps with the `requirements_dev.txt` (where we would manually put development dependencies and specify their version, by checking the installed version using `pip list`), we setup a pipeline to check that there are no overlapping dependencies using GitHub Actions (`check_python_requirements.yaml`).
+For managing our dependencies, we used a combination of `conda` and `pip`. The list of dependencies for the project was managed using `pipreqs` to write the `requirements.txt` file, and then, to avoid overlaps with the `requirements_dev.txt`, we setup a pipeline to check that there are no overlapping dependencies using GitHub Actions (`check_python_requirements.yaml`).
 
 To setup an exact copy of the development environment, the following steps should be followed:
 

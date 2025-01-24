@@ -143,22 +143,19 @@ s203822, s243266, s205717, s205421, s203768
 >
 > Answer:
 
-For our project, we have used several open source, third party frameworks not covered in the course, such as [CNNDetection](https://github.com/PeterWang512/CNNDetection), and also [pytest-cov](https://pypi.org/project/pytest-cov/) (Not to be confused with `coverage`), etc.
+We will focus on `CNNDetection` here (we have also used other 3rd party libraries, such as [pytest-cov](https://pypi.org/project/pytest-cov/)). Since we use GANs, it is challenging to get validation metrics. `CNNDetection` is a library for detecting whether images are generated using CNN-based GANs. We can thus use this library to determine how AI-generated our images look.
 
-The most significant of these was `CNNDetection`, which is what we will focus on in this response. Since we are working with GANs (Generative Adversarial Networks), it can be hard to get proper validation metrics of which models perform well. Now, `CNNDetection` is a library, specialised in detecting whether an image was generated using CNN-based GANs ([See their page here](https://peterwang512.github.io/CNNDetection/)). Our idea is to exploit this library to essentially tell us "how AI-generated" our generated images look.
-
-`CNNDetection` has some interesting quirks, for one it predicts that $\sim 20\%$ of the CIFAR-100 dataset is AI-generated, so either our assumption of our training data being real is wrong, or, more likely, `CNNDetection` is not a perfect model. For this reason we have instead implemented the following procedure for evaluation:
-
-1. We generate $n_{fake}$ images with our model, and sample another  $n_{real}$ images from the CIFAR-100 test set.
+We use it as follows:
+1. We generate $n_{fake}$ images with our model, and sample another $n_{real}$ images from the CIFAR-100 test set.
 2. We run the `CNNDetection` algorithm on both sets, logging the percentage of images it denotes as `real` in each set $p_{real}$ and $p_{fake}$.
-3. We then run a statistical test for wether $ p_{real} = p_{fake} $, essentially assuming that if these two are the same, then our generator creates images similar to the training data.
+3. We then run a statistical test for whether $ p_{real} = p_{fake} $, essentially assuming that if these two are the same, then our generator creates images similar to the training data.
 
 $$ z = \frac{(p_{real }- p_{fake})}  {\sqrt{\hat{p} \cdot (1 - \hat{p}) \cdot (\frac{1}{n_{real}}  + \frac{1}{n_{fake}} )}},  $$
 where
 $$ \hat{p}= \frac{n_{real} \cdot p_{real} + n_{fake} \cdot p_{fake}}{n_{real} + n_{fake}}, $$
 which is compared to a standard normal distribution, to get a p-values.
 
-Now, `CNNDetection` did *not* end up being a significant part of our project. we have implemented the above test, to take a trained model an evaluate it. The ideal scenario would be to use the same algorithm during training, to evaluate the current model (essentially just an extra pre-trained non-fluctuating discriminator), perhaps even having a `wandb` sweep try to maximize a p-value. However, `CNNDetection` is, very interestingly, quite certain that random noise is *not* AI-generated, which means that our initial models, before training, acutally perform quite well using this metric... which makes optimization weird. It's also quite slow to do this.
+The library did help us complete the project, but it is a bit weird, since it is certain that random noise is *not* AI-generated.
 
 
 ## Coding environment
@@ -179,7 +176,7 @@ Now, `CNNDetection` did *not* end up being a significant part of our project. we
 >
 > Answer:
 
-For managing our dependencies, we used a combination of `conda` and `pip`. The list of dependencies for the project was managed (and hence auto-generated) using `pipreqs` to write the `requirements.txt` file, and then, to avoid overlaps with the `requirements_dev.txt` (where we would manually put development dependencies and specify their version, by checking the installed version using `pip list`), we setup a pipeline to check that there are no overlapping dependencies using GitHub Actions (`check_python_requirements.yaml`).
+For managing our dependencies, we used a combination of `conda` and `pip`. The list of dependencies for the project was managed using `pipreqs` to write the `requirements.txt` file, and then, to avoid overlaps with the `requirements_dev.txt`, we setup a pipeline to check that there are no overlapping dependencies using GitHub Actions (`check_python_requirements.yaml`).
 
 To setup an exact copy of the development environment, the following steps should be followed:
 
@@ -253,12 +250,13 @@ These concepts are important in larger projects because you need some uniformity
 >
 > Answer:
 
-We implemented unit tests for the api, data, model, monitoring and training.
-for the api, using a post operation, we test whether the model can generate an image from a sentence.
+We implemented unit tests for api, data, model, monitoring and training.
 
-For the data we first test whether the dataset is of the correct type, then we test the expected dataset sizes and that each element within a dataloader is of the expected instance, and lastly we check that normalization occurs as expected.
+For api, using a post operation, we test whether the model can generate an image.
 
-The model tests that the generator class can be initialized properly, and that it output is appropriate given two distinct inputs.
+For data, we check if the dataset has the correct type, then the expected dataset sizes, then whether each element within the dataloader is correct, and finally whether normalization was done correctly.
+
+The model tests that the generator class can be initialized properly, and that its output is appropriate given two distinct inputs.
 
 Monitoring tests that we get an OK repsonse from report generated using data-drift-report.
 
@@ -281,7 +279,7 @@ Code covereage is displayed as a badge in the repository
 ![alt text](figures/badge.png)
 *Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not.
 
-Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still.
+Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still. As was famously said by Edsger W. Dijkstra: "Program testing can be used to show the presence of bugs, but never to show their absence!" [quote-from-here](https://www.goodreads.com/quotes/506689-program-testing-can-be-used-to-show-the-presence-of) and [here](https://en.wikiquote.org/wiki/Edsger_W._Dijkstra).
 
 ### Question 9
 
@@ -334,7 +332,19 @@ Data version control would definitely be helpful in a scenario where we actually
 >
 > Answer:
 
---- question 11 fill here ---
+Our continuous integration setup mainly runs on GitHub. The workflow files are organised into 5 files in the `.github/workflows` folder. A link to them on our main branch can be found [here](https://github.com/martin5709/Group83-MLOps-02476/tree/main/.github/workflows). Furthermore, whenever there is a push to main, the build job for the training and api docker container is automatically run in Cloud Build. An example of a triggered workflow can be seen [here](https://github.com/martin5709/Group83-MLOps-02476/actions/runs/12951371828). We make sure to test on multiple python versions (3.11 and 3.12) and several operating systems (`windows-latest` and `ubuntu-latest`), though while the tests pass, the windows tests do not truly work, since they cannot parse the `CNNDetection` pickle properly. Caching is used in these tests, as can be seen by the usage of `cache` and `cache-dependency-path` for `pip` in the `steps` part of the `tests.yaml`. We only permit pull requests to `main`, never direct pushes, to prevent accidental pushes to `main`. Likewise, to merge a pull request into `main`, the PR must pass the Python 3.11 `ubuntu-latest` unit testing, the large files check, and the python requirements check.
+
+Their functionality can be described as follows:
+
+1. `add_badges.yaml` -- This runs code coverage using `pytest-cov`, then extracts the total percentage, and creates a pull request if there is a discrepancy between the current declared code coverage and the calculated code coverage (see the badges in the README of the project). 
+
+2. `check_file_size.yaml` -- Utilises piping and bash commands to find the largest file and checks this is within 8 MB (preventing people from submitting large files to `main`).
+
+3. `check_python_requirements.yaml` -- Compares the two Python requirement files. No line may overlap between the two.
+
+4. `lint.yaml` -- Does linting using ruff. Only triggers when `.py` files have changed.
+
+5. `tests.yaml` -- Does unit-testing using `pytest` on the project, checking different python versions, and operating systems.
 
 ## Running code and tracking experiments
 
@@ -407,7 +417,7 @@ For the purposes of reproducability, we can go to the overview tab, and see the 
 - $k\_ discriminator = 3$
 - $learning\_ rate = 4.1 \cdot 10^{-4}$
 
-
+Each of these metrics brings value to the assessment. Synthetic probability gives the probability of the image being AI generated (which acts as the validation of the GAN), the discriminator and generator loss also matter for monitoring purposes, since if one of these keeps growing, it indicates that there is a training imbalance, meaning that one model may never begin truly improving again. Likewise, taking images at frequent intervals are important for checking that modal collapse is not happening.
 
 ### Question 15
 
@@ -639,14 +649,13 @@ For load tests we did a few quick ones using locust. We did 3 quick experiments,
 >
 > Answer:
 
-We did not end up implementing monitoring on our model. Mainly because we could not find a purpose for it. Since we're just training unconditional GANs we have no real use for tracking it's output, since, assuming we actually made a well-trained model, would always just generate images which are similar to the training data. This should never change, and there is not way usage of a trained model could actually drift.
+We did not end up implementing monitoring. Since we are training unconditional GANs we have no use for tracking its output, since, assuming we made a well-trained model, would always generate images which are similar to the training data, and which output doesn't depend on the user.
 
 However, just to get a feeling of how to acutally implemenent monitoring, we did set up monitoring on our training data. We have an API, which given the request
 ```sh
 curl -X GET "https://data-drift-report-generator-5307485050.europe-west1.run.app/report?n=<N-IMAGES>" --output report.html
 ```
-where `<N-IMAGES>` is the the number of images from the two sets to compare. It can also be called from `test_monitoring.py` in the tests folder. The script downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. In general we do not recommend using a large `n`, since the code is quite unoptimized, which is also why we chose subsampling in the first place.
-As discussed in the dvc-part of the report, we never really used dvc, since we never changed our dataset. So right now this report just tries to detect drift between CIFAR-10 and CIFAR-100. The report compares the 512 features from the CLIP-model, as in the exercises.
+where `<N-IMAGES>` is the the number of images from the two sets to compare. It can also be called from `test_monitoring.py` in the tests folder. The script downloads the current and previous versions of our training data, from our dvc-bucket, and creates a report using `evidently`. In general we do not recommend using a large `n`, since the code is quite unoptimized, which is also why we chose subsampling. The report just tries to detect drift between CIFAR-10 and CIFAR-100. The report compares the 512 features from the CLIP-model, as in the exercises.
 
 In the future we imagine this feature could be useful when acually expandning training data, in askin how similar two sets actually are.
 
@@ -704,7 +713,6 @@ We did not implement anything not discussed in a previous question.
 >
 > Answer:
 
-### *Diagram of project*
 ![hello](figures/MLOps_project_diagram.jpg)
 
 Our diagram is split into 5 colored regions, essentially just categorizing services we have used. Between services we have arrows. Starting at *Group 83* (the laptop left-center) it is possible to follow journeys of colored arrows through the landscape.

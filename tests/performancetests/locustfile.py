@@ -11,14 +11,14 @@ class ImageAPILoadTest(HttpUser):
 
         payload = {"request": "Please make me an image :D"}
         headers = {"Content-Type": "application/json"}
-        
+
         with self.client.post(
-            url="/generate", 
+            url="/generate",
             json=payload,
             headers=headers,
-            catch_response=True,  
+            catch_response=True,
         ) as response:
-            
+
             if response.status_code == 200:
                 response.success()
             else:

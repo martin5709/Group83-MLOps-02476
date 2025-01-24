@@ -213,6 +213,8 @@ We have used most of the stuff from the Cookiecutter template, e.g. `src`, `mode
 
 We have added a folder called `CNNDetection`, mainly for the reason of clear distinction between code we wrote, and code we "borrowed" from others.
 
+In general, the Cookiecutter template was rpoven useful, as it set up useful directories for compartimentalizing our files. However, we ended up with a couple of extra files in the working directory that we could have fond a better place for them.
+
 ### Question 6
 
 > **Did you implement any rules for code quality and format? What about typing and documentation? Additionally,**
@@ -226,7 +228,9 @@ We have added a folder called `CNNDetection`, mainly for the reason of clear dis
 >
 > Answer:
 
---- question 6 fill here ---
+
+
+These concepts are important in larger projects because it consists of several people working and some consistency is needed for correct groupwork. For example, documentation typing in a correct way can facilitate the usage of methods other teammates have developed without having to ask them about functionality or having to use a lot of time understanding the code. 
 
 ## Version control
 
@@ -401,12 +405,13 @@ For the purposes of reproducability, we can go to the overview tab, and see the 
 >
 > Answer:
 
-For our project we developed several images: one for training, one for the API backend, another one for the frotend, and a final one for monitoring.
+For our project we developed several images: one for training, one for the API backend, and one for data drift monitoring.
 
-Automatic image building to GCS, then used for training in the cloud so that we have more resources
+For the deployment of the model we have created a docker image that runs the API with python's FastAPI module, and a docker container that monitors data drifting.
 
-For the deployment of the model we have created a docker image that runs the API with python's FastAPI module, and a frontend runninng container that connects
-to the backend and displays things nicely. Finally, a docker container that monitors the model behaviour is used
+When we were still running our docker images locally, we run `docker run trainer:latest ...` adding the experiment specific parameters, and mounting the volumes when we were still saving the models locally. Link to the docker images: 
+
+For Continuous Integration purposes, every time code is pushed to the main branch, the docker image building is triggered in Google Cloud and images are then pushed to the Artifact registry.
 
 ### Question 16
 
@@ -447,7 +452,13 @@ Right after training, we profiled the code but time constraints did not allow us
 >
 > Answer:
 
---- question 17 fill here ---
+Bucket was used for data and model storage in the cloud.
+
+Artifact Registry is used for artifact storage in the cloud,Combining it with Cloud Build we built the docker images in the cloud, and defined triggers so that the images are built every time code is pushed to the repository.
+
+Engine was used for defining the specific Virtual Machine specifications that we then would use for training.
+
+VertexAI is used to run model training in the cloud, using the Virtual Machine in Engine.
 
 ### Question 18
 
@@ -480,7 +491,7 @@ Right after training, we profiled the code but time constraints did not allow us
 >
 > Answer:
 
---- question 20 fill here ---
+![Docker images](figures/docker-images.png)
 
 ### Question 21
 
@@ -489,7 +500,7 @@ Right after training, we profiled the code but time constraints did not allow us
 >
 > Answer:
 
---- question 21 fill here ---
+![Build history](figures/build-history.png)
 
 ### Question 22
 
@@ -685,3 +696,4 @@ In the future we imagine this feature could be useful when acually expandning tr
 > Answer:
 
 --- question 31 fill here ---
+AAAAA

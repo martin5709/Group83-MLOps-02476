@@ -469,7 +469,9 @@ In our project, we have made use of the following GCP Services:
 >
 > Answer:
 
---- question 18 fill here ---
+We did not use Google Cloud's Compute Engine for our project, since many of the other Google Cloud services, such as Vertex AI, Cloud Build, etc. covered our use case more effectively than the Compute Engine.
+
+If we were to have used 
 
 ### Question 19
 

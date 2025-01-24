@@ -667,7 +667,7 @@ In the future we imagine this feature could be useful when acually expandning tr
 >
 > Answer:
 
-With regards to credits, as of 11:20 on Friday, we have spent a total of $ 3.57\, \$ $ in Google Cloud. We expect this number to be slightly wrong, since a group member decided to do GPU training in Vertex AI the night before this, and the billing report only shows $ 0.08\, \$ $ spent on Vertex AI.
+With regards to credits, as of 11:20 on Friday, we have spent a total of $ 3.57\, \$ $ in Google Cloud. We expect this number to be slightly wrong, since a group member decided to do GPU training in Vertex AI the night before this, and the billing report only shows $ 0.08\, \$ $ spent on Vertex AI. Additionally this number in no way corresponds to the amount of credits used, which at this point was closer to $ 11 $, even more disappeared after running load tests on the API, without showing up in reports yet.
 
 The bulk of our credits where spent in Storage $( 2.37\, \$ ) $ and Artifact Registry $( 0.87\, \$)$, the rest is some mix of Vertex AI, Compute Engine an Cloud Run.
 
@@ -735,13 +735,13 @@ Data is pushed from the local setup to a Cloud Bucket, DVC ensures we keep track
 > Answer:
 
 
-Large struggles was keeping up with version control, this included not just which package to import and their versions but also ensuring everyone had access to dvc, wandb and so forth.
+A large struggle was keeping up with version control, this included not just which package to import and their versions but also ensuring everyone had access to dvc, wandb and so forth.
 
 Large amount of times were dedicated to connect different services which also was hard to debug and the debugging process itself was error prone, as machines sometimes tend to differ in subtle ways.
 
 We also saw some problems in the subtlety between git and github when using the command line, e.g. some commands are not available just using git and the workflow of github took a while to setup.
 
-A challenge of this project was getting docker containers to run in the cloud. The reason for this struggle was 3-fold. For one, building docker containers just takes a while, for us this means that any debugging just took ages, as a single deplyment to the cloud could take upto 25 minutes, before we got our error message, and could revisit the problem.
+Another challenge of this project was getting docker containers to run in the cloud. The reason for this struggle was 3-fold. For one, building docker containers just takes a while, for us this means that any debugging just took ages, as a single deployment to the cloud could take upto 25 minutes, before we got our error message, and could revisit the problem.
 
 The second reason lies in reading logs from Google Cloud, when looking back at it, this should definitely not have been an issue at all, but for some reason the new UI just made the entire process of actually tracking down errors became more difficult than usual.
 
@@ -769,7 +769,7 @@ s205421: in charge of creating pre-commit.yaml files, making actions on github, 
 
 s203822: In general in charge of a lot of different tasks and infrastructure. The biggest of these being the Vertex AI management, hydra and typer configs, the model and training development, and GitHub actions for testing.
 
-s205717: Designated local tester, as the only group member with a GPU to train the very early models on, and the only one with a powerful enough pc to build docker images in a reasonable time. Unittesting of API's. Worked on model API and data drift monitoring API.
+s205717: Designated local tester, as the only group member with a GPU to train the very early models on, and the only one with a powerful enough pc to build docker images in a reasonable time. Unittesting of API's, and code. Worked on model API and data drift monitoring API.
 
 s203768: Set up Wandb sweeping agent + artifact registry (which we never really used). Worked on model API and data drift monitoring API. Load test of model API. Attempted evaluation with CNNDetection.
 

@@ -250,12 +250,13 @@ These concepts are important in larger projects because you need some uniformity
 >
 > Answer:
 
-We implemented unit tests for the api, data, model, monitoring and training.
-for the api, using a post operation, we test whether the model can generate an image from a sentence.
+We implemented unit tests for api, data, model, monitoring and training.
 
-For the data we first test whether the dataset is of the correct type, then we test the expected dataset sizes and that each element within a dataloader is of the expected instance, and lastly we check that normalization occurs as expected.
+For api, using a post operation, we test whether the model can generate an image.
 
-The model tests that the generator class can be initialized properly, and that it output is appropriate given two distinct inputs.
+For data, we check if the dataset has the correct type, then the expected dataset sizes, then whether each element within the dataloader is correct, and finally whether normalization was done correctly.
+
+The model tests that the generator class can be initialized properly, and that its output is appropriate given two distinct inputs.
 
 Monitoring tests that we get an OK repsonse from report generated using data-drift-report.
 

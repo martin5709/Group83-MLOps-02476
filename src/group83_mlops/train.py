@@ -240,7 +240,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     trained_path = "models"
     if vertex:
         trained_path = gcs_model
-    
+
     if model_type == 0:
         trained_generator_name = "simple_generator.pth"
         trained_discriminator_name = "simple_discriminator.pth"

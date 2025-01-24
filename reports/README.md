@@ -279,7 +279,7 @@ Code covereage is displayed as a badge in the repository
 ![alt text](figures/badge.png)
 *Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not.
 
-Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still.
+Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still. As was famously said by Edsger W. Dijkstra: "Program testing can be used to show the presence of bugs, but never to show their absence!" [quote-from-here](https://www.goodreads.com/quotes/506689-program-testing-can-be-used-to-show-the-presence-of) and [here](https://en.wikiquote.org/wiki/Edsger_W._Dijkstra).
 
 ### Question 9
 

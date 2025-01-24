@@ -275,11 +275,11 @@ We have added a folder called `CNNDetection`, mainly for the reason of clear dis
 >
 > Answer:
 
-We have made plenty use of both brances and pull requests in this project. Branches have been a significant help in regards to parallelising tasks, s.t. individual group members could work on different parts of the code, without interferring. Suprisingly the branches have actually also been helpful when a group member needed aid in sorting out a specific issue on their branch, since another group member could easily just switch branch, and try out the new code for themselves, instead of everyone just looking over shoulders, and running stuff on one PC.
+We have made plenty use of both branches and pull requests in this project. Branches have been a significant help in regards to parallelising tasks, s.t. individual group members could work on different parts of the code, without interferring. Suprisingly the branches have actually also been helpful when a group member needed aid in sorting out a specific issue on their branch, since another group member could easily just switch branch, and try out the new code for themselves, instead of everyone just looking over shoulders, and running stuff on one PC.
 
 We set up pull requests to work along tests, e.g. "Are you attempting to commit large files?", this helped ensuring no major errors would make their way into the main branch. To make our lives easier, we did set it up so any group member could create their own pull request, and merge their branch into main.
 
-With respect to verion control, we did luckily not have any large enough issues to actually have to revert changes, but it was sometimes helpful to be able to just close a branch, if you messed it up enough.
+With respect to version control, we did luckily not have any large enough issues to actually have to revert changes, but it was sometimes helpful to be able to just close a branch, if you messed it up enough.
 
 ### Question 10
 
@@ -390,7 +390,12 @@ Hydra solves the issue of reproducability by simply requiring a config file to r
 >
 > Answer:
 
---- question 15 fill here ---
+For our project we developed several images: one for training, one for the API backend, another one for the frotend, and a final one for monitoring.
+
+Automatic image building to GCS, then used for training in the cloud so that we have more resources
+
+For the deployment of the model we have created a docker image that runs the API with python's FastAPI module, and a frontend runninng container that connects
+to the backend and displays things nicely. Finally, a docker container that monitors the model behaviour is used
 
 ### Question 16
 

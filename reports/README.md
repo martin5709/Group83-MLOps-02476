@@ -225,7 +225,7 @@ In general, the Cookiecutter template was proven useful, as it set up directorie
 >
 > Answer:
 
-We implimented a pre-commit.yaml file which checks if the code follows the PEP8 standard.
+We implemented a pre-commit.yaml file which checks if the code follows the PEP8 standard.
 We added some exceptions to this, e.g. in train.py we had dependencies which the linter could not find, so we allowed them not to be checked by said linter.
 The linter in question was ruff.
 The pre-commit.yaml file automatically format the code after the first commit.
@@ -277,7 +277,7 @@ Training tests that Hydra works as expected.
 
 Code covereage is displayed as a badge in the repository
 ![alt text](figures/badge.png)
-*Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not.
+*Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not. Though, it is now at 43\% as of 22:22 January 24th.
 
 Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still. As was famously said by Edsger W. Dijkstra: "Program testing can be used to show the presence of bugs, but never to show their absence!" [quote-from-here](https://www.goodreads.com/quotes/506689-program-testing-can-be-used-to-show-the-presence-of) and [here](https://en.wikiquote.org/wiki/Edsger_W._Dijkstra).
 
@@ -365,7 +365,7 @@ Their functionality can be described as follows:
 
 We ended up setting up two training commands, one using hydra and one using wandb, both of which are called with the `invoke` framework. So we would call either
 
-`invoke train-hydra --experiment.yaml` or `invoke train-wandb --arg1...`
+`invoke train-hydra --experiment=exp1` or `invoke train-wandb --arg1...`
 
 so hydra training takes a yaml file describing the experiment, the wandb takes arguments (sutch as batch size and learning rate). The `train-wandb` was set up this way, so it was easy to set up a hyperparameter sweep, which just parsed arguments to the function, we essentially never actually ran `invoke train-wandb --arg1...`, since its very tedious to write the arguments in by hand.
 
@@ -436,7 +436,7 @@ For our project we developed several images: one for training, one for the API b
 
 For the deployment of the model we have created a docker image that runs the API with python's FastAPI module, and a docker container that monitors data drifting.
 
-When we were still running our docker images locally, we run `docker run trainer:latest ...` adding the experiment specific parameters, and mounting the volumes when we were still saving the models locally. Link to the docker images: [here](europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/train:latest)
+When we were still running our docker images locally, we run `docker run trainer:latest ...` adding the experiment specific parameters, and mounting the volumes when we were still saving the models locally. Link to the docker images: [here](europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/train:latest) (though these may not be accessible due to it being in a private bucket). The **docker files** can be found [here](https://github.com/martin5709/Group83-MLOps-02476/tree/main/dockerfiles), with a **specific one** [here](https://github.com/martin5709/Group83-MLOps-02476/blob/main/dockerfiles/train.dockerfile).
 
 For Continuous Integration purposes, every time code is pushed to the main branch, the docker image building is triggered in Google Cloud and images are then pushed to the Artifact Registry.
 
@@ -452,6 +452,7 @@ For Continuous Integration purposes, every time code is pushed to the main branc
 > *run of our main code at some point that showed ...*
 >
 > Answer:
+
 Experiments can have a lot of meanings.
 
 For general python files we used the debugger within python, e.g. for vscode we setup breakpoints and saw the states of the code at its point of failure.
@@ -651,7 +652,7 @@ For load tests we did a few quick ones using locust. We did 3 quick experiments,
 
 We did not end up implementing monitoring. Since we are training unconditional GANs we have no use for tracking its output, since, assuming we made a well-trained model, would always generate images which are similar to the training data, and which output doesn't depend on the user.
 
-However, just to get a feeling of how to acutally implemenent monitoring, we did set up monitoring on our training data. We have an API, which given the request
+However, just to get a feeling of how to actually implement monitoring, we did set up monitoring on our training data. We have an API, which given the request
 ```sh
 curl -X GET "https://data-drift-report-generator-5307485050.europe-west1.run.app/report?n=<N-IMAGES>" --output report.html
 ```
@@ -680,7 +681,7 @@ With regards to credits, as of 11:20 on Friday, we have spent a total of $ 3.57\
 
 The bulk of our credits where spent in Storage $( 2.37\, \$ ) $ and Artifact Registry $( 0.87\, \$)$, the rest is some mix of Vertex AI, Compute Engine an Cloud Run.
 
-Overall working in the cloud is a somewhat frustating experience, but well worth the satisfaction, when you finally get your pibeline set up, and everything starts communicating.
+Overall working in the cloud is a somewhat frustating experience, but well worth the satisfaction, when you finally get your pipeline set up, and everything starts communicating.
 
 ### Question 28
 
@@ -699,8 +700,6 @@ Overall working in the cloud is a somewhat frustating experience, but well worth
 Yes, we implemented Alert Systems in GCP, such that whenever a deployment of Cloud Run fails, a notification is sent by email. The same is also the case when a Vertex AI instance fails. We did this for convenience during debugging, such that one could move on to some other task while the systems were training, and then one would be notified over email when it failed.
 
 Likewise, we implemented distributed data loading using the `num_workers` parameter in the Dataloader. We did this in an effort to improve the training speed.
-
-Finally, a drift detection service was implemented, as detailed in our answers to the questions below.
 
 ### Question 29
 

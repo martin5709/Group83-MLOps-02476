@@ -15,6 +15,7 @@ COPY pyproject.toml pyproject.toml
 RUN pip install -r requirements.txt --no-cache-dir --verbose
 RUN pip install . --no-deps --no-cache-dir --verbose
 RUN pip install uvicorn
+RUN pip install nltk
 
 EXPOSE $PORT
 

@@ -213,6 +213,8 @@ We have used most of the stuff from the Cookiecutter template, e.g. `src`, `mode
 
 We have added a folder called `CNNDetection`, mainly for the reason of clear distinction between code we wrote, and code we "borrowed" from others.
 
+In general, the Cookiecutter template was proven useful, as it set up directories for compartmentalizing our files. However, we ended up with a couple of extra files in the working directory that we could have fond a better place for them.
+
 ### Question 6
 
 > **Did you implement any rules for code quality and format? What about typing and documentation? Additionally,**
@@ -232,6 +234,7 @@ The linter in question was ruff.
 The pre-commit.yaml file automatically format the code after the first commit.
 Lastly we implemented a github action which checks the code format, we decided not to make this a required action to merge with main.
 
+These concepts are important in larger projects because you need some uniformity within the project even with a lot of people working on it. 
 
 ## Version control
 
@@ -297,7 +300,7 @@ We have made plenty use of both branches and pull requests in this project. Bran
 
 We set up pull requests to work along tests, e.g. "Are you attempting to commit large files?", this helped ensuring no major errors would make their way into the main branch. To make our lives easier, we did set it up so any group member could create their own pull request, and merge their branch into main.
 
-With respect to verion control, we did luckily not have any large enough issues to actually have to revert changes, but it was sometimes helpful to be able to just close a branch, if you messed it up enough.
+With respect to version control, we did luckily not have any large enough issues to actually have to revert changes, but it was sometimes helpful to be able to just close a branch, if you messed it up enough.
 
 ### Question 10
 
@@ -419,7 +422,13 @@ For the purposes of reproducability, we can go to the overview tab, and see the 
 >
 > Answer:
 
---- question 15 fill here ---
+For our project we developed several images: one for training, one for the API backend, and one for data drift monitoring.
+
+For the deployment of the model we have created a docker image that runs the API with python's FastAPI module, and a docker container that monitors data drifting.
+
+When we were still running our docker images locally, we run `docker run trainer:latest ...` adding the experiment specific parameters, and mounting the volumes when we were still saving the models locally. Link to the docker images: [here](europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/train:latest)
+
+For Continuous Integration purposes, every time code is pushed to the main branch, the docker image building is triggered in Google Cloud and images are then pushed to the Artifact Registry.
 
 ### Question 16
 
@@ -763,3 +772,5 @@ s203822: In general in charge of a lot of different tasks and infrastructure. Th
 s205717: Designated local tester, as the only group member with a GPU to train the very early models on, and the only one with a powerful enough pc to build docker images in a reasonable time. Unittesting of API's, and code. Worked on model API and data drift monitoring API.
 
 s203768: Set up Wandb sweeping agent + artifact registry (which we never really used). Worked on model API and data drift monitoring API. Load test of model API. Attempted evaluation with CNNDetection.
+
+s243266: in charge of the docker files locally and in the cloud. Cloud Build for docker images and triggers.

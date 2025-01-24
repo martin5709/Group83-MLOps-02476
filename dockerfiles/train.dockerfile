@@ -2,10 +2,8 @@
 FROM python:3.11-slim AS base
 
 RUN apt update && \
-    apt install --no-install-recommends -y build-essential gcc && \
+    apt install --no-install-recommends -y build-essential gcc wget && \
     apt clean && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get install -y --no-install-recommends wget
 
 COPY src src/
 COPY CNNDetection CNNDetection/

@@ -1,20 +1,18 @@
-import requests
-from PIL import Image
 from transformers import CLIPModel, CLIPProcessor
-import torchvision.datasets as datasets
 import pandas as pd
 import torch
 from google.cloud import storage
 import os
-import matplotlib.pyplot as plt
 
-from evidently.report import Report
-from evidently.metric_preset import DataDriftPreset, DataQualityPreset,TargetDriftPreset
+# from evidently.report import Report
+# from evidently.metric_preset import DataDriftPreset
+from torchvision.transforms import ToPILImage
+
+
 
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
-from torchvision.transforms import ToPILImage
 
 to_pil = ToPILImage()
 
@@ -38,7 +36,7 @@ def download_data():
     # Download the latest version
     latest_blob = blobs[0]
     latest_blob.download_to_filename("new.pt")
-    print(f"Downloaded latest version of your data")
+    print("Downloaded latest version of your data")
 
     # Download the previous version if it exists
     if len(blobs) > 1:
@@ -48,7 +46,7 @@ def download_data():
     else:
         backup_blob = storage_client.bucket(BACKUP_BUCKET).blob(BACKUP_NAME)
         backup_blob.download_to_filename("old.pt")
-        print(f"Versioning is fucked again, dowloaded CIFAR10 dataset from backup instead")
+        print("Versioning is fucked again, dowloaded CIFAR10 dataset from backup instead")
     return None
 
 download_data()
@@ -85,9 +83,9 @@ for i in range(n):
     df_new.loc[i] = img_features[0].detach().numpy()
 
 
-report = Report(metrics=[DataDriftPreset(), DataQualityPreset,TargetDriftPreset])
-report.run(reference_data=df_old, current_data=df_new)
-report.save_html('CLIP_report.html')
+# report = Report(metrics=[DataDriftPreset(), DataQualityPreset,TargetDriftPreset]) # noqa: E501
+# report.run(reference_data=df_old, current_data=df_new)
+# report.save_html('CLIP_report.html')
 
 # Cleanup
 print("Hej")

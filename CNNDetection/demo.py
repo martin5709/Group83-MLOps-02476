@@ -1,11 +1,7 @@
-import os
-import sys
 import torch
 import torch.nn
 import argparse
-import numpy as np
 import torchvision.transforms as transforms
-import torchvision.datasets as datasets
 from PIL import Image
 from networks.resnet import resnet50
 
@@ -41,7 +37,7 @@ img = trans(Image.open(opt.file).convert('RGB'))
 with torch.no_grad():
     in_tens = img.unsqueeze(0)
     if(not opt.use_cpu):
-    	in_tens = in_tens.cuda()
+      in_tens = in_tens.cuda()
     prob = model(in_tens).sigmoid().item()
 
 print('probability of being synthetic: {:.2f}%'.format(prob * 100))

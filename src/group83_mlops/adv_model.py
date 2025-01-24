@@ -14,10 +14,17 @@ class Generator(nn.Module):
         elif latent_space_size <= 0:
             raise ValueError(f"Latent space must have size 1 or greater. Currently set to {latent_space_size}")
 
-        self.gen_model = nn.Sequential( # Very simple for now (just linear layers)
-            nn.Linear(latent_space_size, 512),
-            nn.ReLU(),
-            nn.Linear(512, height*width*channels),
+        self.gen_model = nn.Sequential( # DTU DL Course-Like Model
+            nn.ConvTranspose2d(latent_space_size, 512, kernel_size=3, stride=2),
+            nn.BatchNorm2d(512),
+            nn.GELU(),
+            nn.ConvTranspose2d(512, 256, kernel_size=3, stride=2),
+            nn.BatchNorm2d(256),
+            nn.GELU(),
+            nn.ConvTranspose2d(256, 128, kernel_size=2, stride=2),
+            nn.BatchNorm2d(128),
+            nn.GELU(),
+            nn.ConvTranspose2d(128, 1, kernel_size=2, stride=2),
             nn.Tanh() # Force output to be standardised between -1 and 1
         )
 
@@ -28,11 +35,17 @@ class Discriminator(nn.Module):
     """GAN Discriminator Component"""
     def __init__(self) -> None:
         super().__init__()
-        self.dis_model = nn.Sequential( # Very simple for now (just linear layers)
+        self.dis_model = nn.Sequential( # DTU DL Course-Like Model
+            nn.Conv2d(channels, 64, kernel_size=4, stride=2),
+            nn.GELU(),
+            nn.Conv2d(64, 128, kernel_size=4, stride=2),
+            nn.BatchNorm2d(128),
+            nn.GELU(),
+            nn.Conv2d(128, 256, kernel_size=4, stride=2),
+            nn.BatchNorm2d(256),
+            nn.GELU(),
             nn.Flatten(1),
-            nn.Linear(height*width*channels, 512),
-            nn.ReLU(),
-            nn.Linear(512, 1),
+            nn.Linear(256, 1),
             nn.Sigmoid() # Return an output between 0 (Fake) and 1 (Real)
         )
 

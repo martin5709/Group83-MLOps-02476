@@ -480,7 +480,11 @@ If we were to have used the Compute Engine, we would have used it for model trai
 >
 > Answer:
 
---- question 19 fill here ---
+We have several buckets, so we will show the one with our DVC data in it:
+
+![Bucket Overview](figures/BucketOverview.png)
+
+![Data Bucket](figures/DataBucket.png)
 
 ### Question 20
 

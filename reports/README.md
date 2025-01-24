@@ -649,14 +649,13 @@ For load tests we did a few quick ones using locust. We did 3 quick experiments,
 >
 > Answer:
 
-We did not end up implementing monitoring on our model. Mainly because we could not find a purpose for it. Since we're just training unconditional GANs we have no real use for tracking it's output, since, assuming we actually made a well-trained model, would always just generate images which are similar to the training data. This should never change, and there is not way usage of a trained model could actually drift.
+We did not end up implementing monitoring. Since we are training unconditional GANs we have no use for tracking its output, since, assuming we made a well-trained model, would always generate images which are similar to the training data, and which output doesn't depend on the user.
 
 However, just to get a feeling of how to acutally implemenent monitoring, we did set up monitoring on our training data. We have an API, which given the request
 ```sh
 curl -X GET "https://data-drift-report-generator-5307485050.europe-west1.run.app/report?n=<N-IMAGES>" --output report.html
 ```
-where `<N-IMAGES>` is the the number of images from the two sets to compare. It can also be called from `test_monitoring.py` in the tests folder. The script downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. In general we do not recommend using a large `n`, since the code is quite unoptimized, which is also why we chose subsampling in the first place.
-As discussed in the dvc-part of the report, we never really used dvc, since we never changed our dataset. So right now this report just tries to detect drift between CIFAR-10 and CIFAR-100. The report compares the 512 features from the CLIP-model, as in the exercises.
+where `<N-IMAGES>` is the the number of images from the two sets to compare. It can also be called from `test_monitoring.py` in the tests folder. The script downloads the current and previous versions of our training data, from our dvc-bucket, and creates a report using `evidently`. In general we do not recommend using a large `n`, since the code is quite unoptimized, which is also why we chose subsampling. The report just tries to detect drift between CIFAR-10 and CIFAR-100. The report compares the 512 features from the CLIP-model, as in the exercises.
 
 In the future we imagine this feature could be useful when acually expandning training data, in askin how similar two sets actually are.
 

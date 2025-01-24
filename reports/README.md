@@ -261,7 +261,7 @@ We have added a folder called `CNNDetection`, mainly for the reason of clear dis
 > Answer:
 
 Code covereage is displayed as a badge in the repository
-![alt text](image.png)
+![alt text](figures/badge.png)
 *Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not.
 
 Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still.
@@ -572,7 +572,11 @@ We also made a python script `test_api.py` in the tests folder, which essentiall
 >
 > Answer:
 
---- question 25 fill here ---
+We are performing some very simple unittests on our API, e.i. check if the server is running, and if it sends us a png on request, but nothing else.
+
+For load tests we did a few quick ones using locust. We did 3 quick experiments, each of 60 seconds. The first had 1 user, then 10 users and lastly 50 users. As we see respone time scales very poorly with number of users, going up to $ \sim 5 $ seconds at the $ 50 $'th percentile when having 50 users. Interestingly, we only had failures when we used 10 users, but had none with 50 users. 
+
+![alt text](figures/locust.png)
 
 ### Question 26
 

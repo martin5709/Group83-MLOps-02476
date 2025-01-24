@@ -646,7 +646,7 @@ However, just to get a feeling of how to acutally implemenent monitoring, we did
 ```sh
 curl -X GET "https://data-drift-report-generator-5307485050.europe-west1.run.app/report?n=<N-IMAGES>" --output report.html
 ```
-or a call to `test_monitoring.py` in the tests folder. Downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. The variable `n` is how many images to take into this report (using all 50000 images in our training data takes a while, so we just select a subsample to actually report on).
+where `<N-IMAGES>` is the the number of images from the two sets to compare. It can also be called from `test_monitoring.py` in the tests folder. The script downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. In general we do not recommend using a large `n`, since the code is quite unoptimized, which is also why we chose subsampling in the first place.
 As discussed in the dvc-part of the report, we never really used dvc, since we never changed our dataset. So right now this report just tries to detect drift between CIFAR-10 and CIFAR-100. The report compares the 512 features from the CLIP-model, as in the exercises.
 
 In the future we imagine this feature could be useful when acually expandning training data, in askin how similar two sets actually are.
@@ -770,4 +770,4 @@ s205421: in charge of creating pre-commit.yaml files, making actions on github, 
 
 s203822: In general in charge of a lot of different tasks and infrastructure. The biggest of these being the Vertex AI management, hydra and typer configs, the model and training development, and GitHub actions for testing.
 
-s243266: in charge of the docker file for training, Google Cloud Artifact and image building triggers.
+s243266: in charge of the docker files locally and in the cloud. Google Cloud Artifacts and image building triggers.

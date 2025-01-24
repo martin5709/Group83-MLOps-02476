@@ -696,6 +696,13 @@ Data is pushed from the local setup to a Cloud Bucket, DVC ensures we keep track
 >
 > Answer:
 
+
+Large struggles was keeping up with version control, this included not just which package to import and their versions but also ensuring everyone had access to dvc, wandb and so forth.
+
+Large amount of times were dedicated to connect different services which also was hard to debug and the debugging process itself was error prone, as machines sometimes tend to differ in subtle ways.
+
+We also saw some problems in the subtlety between git and github when using hte command line, e.g. some commands are not available just using git and the workflow of github took a while to setup.
+
 --- question 30 fill here ---
 
 ### Question 31

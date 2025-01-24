@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from google.cloud import storage
 import datetime
-from group83_mlops.model import Generator
+from group83_mlops.adv_model import Generator
 from io import BytesIO
 
 from torchvision.transforms import ToPILImage

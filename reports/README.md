@@ -252,6 +252,17 @@ Lastly we implemented a github action which checks the code format, we decided n
 >
 > Answer:
 
+We implemented unit tests for the api, data, model, monitoring and training.
+for the api, using a post operation, we test whether the model can generate an image from a sentence.
+
+For the data we first test whether the dataset is of the correct type, then we test the expected dataset sizes and that each element within a dataloader is of the expected instance, and lastly we check that normalization occurs as expected.
+
+The model tests that the generator class can be initialized properly, and that it output is appropriate given two distinct inputs.
+
+Monitoring tests that we get an OK repsonse from report generated using data-drift-report.
+
+Training tests that Hydra works as expected.
+
 --- question 7 fill here ---
 
 ### Question 8

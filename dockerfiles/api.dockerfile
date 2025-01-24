@@ -9,10 +9,12 @@ RUN apt update && \
 COPY src src/
 COPY requirements.txt requirements.txt
 COPY requirements_dev.txt requirements_dev.txt
+COPY requirements_cloud.txt requirements_cloud.txt
 COPY README.md README.md
 COPY pyproject.toml pyproject.toml
 
 RUN pip install -r requirements.txt --no-cache-dir --verbose
+RUN pip install -r requirements_cloud.txt --no-cache-dir --verbose
 RUN pip install . --no-deps --no-cache-dir --verbose
 RUN pip install uvicorn
 

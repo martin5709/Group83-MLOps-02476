@@ -1,13 +1,11 @@
 
 import argparse
-import os
-import csv
 import torch
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 import torch.utils.data
 import numpy as np
-from sklearn.metrics import average_precision_score, precision_recall_curve, accuracy_score
+from sklearn.metrics import average_precision_score, accuracy_score
 from scipy import stats
 
 from networks.resnet import resnet50
@@ -48,7 +46,8 @@ trans = transforms.Compose(trans_init + [
 ])
 
 # Dataset loader
-if(type(opt.dir)==str):
+# if(type(opt.dir)==str):
+if isinstance(opt.dir, str):
   opt.dir = [opt.dir,]
 
 print('Loading [%i] datasets'%len(opt.dir))
@@ -86,7 +85,7 @@ if(not opt.size_only):
   f_acc = accuracy_score(y_true[y_true==1], y_pred[y_true==1] > 0.5)
   acc = accuracy_score(y_true, y_pred > 0.5)
   ap = average_precision_score(y_true, y_pred)
-  # 'AP: {:2.2f}, 
+  # 'AP: {:2.2f},
   print('\nImages in test data predicted as real: {:2.2f}%\nGenerated images predicted as real: {:2.2f}%'.format(  r_acc*100., (1-f_acc)*100.))
 
   n_real = int(np.sum(1-y_true))
@@ -98,5 +97,5 @@ if(not opt.size_only):
   z = (p_real - p_fake) / np.sqrt(p_hat * (1 - p_hat) * (1/n_real + 1/n_fake))
 
   p_value = 2 * (1 - stats.norm.cdf(abs(z)))
-  
+
   print(f"Estimated p-value of these two being the same: p = {p_value:.4f}.")

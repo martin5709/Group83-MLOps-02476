@@ -76,17 +76,17 @@ will check the repositories and the code to verify your answers.
 * [X] Write unit tests related to model construction and or model training (M16)
 * [X] Calculate the code coverage (M16)
 * [X] Get some continuous integration running on the GitHub repository (M17)
-* [ ] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
-* [ ] Add a linting step to your continuous integration (M17)
-* [ ] Add pre-commit hooks to your version control setup (M18)
+* [X] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
+* [X] Add a linting step to your continuous integration (M17)
+* [X] Add pre-commit hooks to your version control setup (M18)
 * [ ] Add a continues workflow that triggers when data changes (M19)
 * [ ] Add a continues workflow that triggers when changes to the model registry is made (M19)
 * [X] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
 * [X] Create a trigger workflow for automatically building your docker images (M21)
-* [ ] Get your model training in GCP using either the Engine or Vertex AI (M21)
-* [ ] Create a FastAPI application that can do inference using your model (M22)
-* [ ] Deploy your model in GCP using either Functions or Run as the backend (M23)
-* [ ] Write API tests for your application and setup continues integration for these (M24)
+* [X] Get your model training in GCP using either the Engine or Vertex AI (M21)
+* [X] Create a FastAPI application that can do inference using your model (M22)
+* [X] Deploy your model in GCP using either Functions or Run as the backend (M23)
+* [X] Write API tests for your application and setup continues integration for these (M24)
 * [ ] Load test your application (M24)
 * [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
 * [ ] Create a frontend for your API (M26)
@@ -147,7 +147,7 @@ For our project, we have used several open source, third party frameworks not co
 
 The most significant of these was `CNNDetection`, which is what we will focus on in this response. Since we are working with GANs (Generative Adversarial Networks), it can be hard to get proper validation metrics of which models perform well. Now, `CNNDetection` is a library, specialised in detecting whether an image was generated using CNN-based GANs ([See their page here](https://peterwang512.github.io/CNNDetection/)). Our idea is to exploit this library to essentially tell us "how AI-generated" our generated images look.
 
-`CNNDetection` has some interesting quirks, for one it predicts that $\sim 10\%$ of the CIFAR-100 dataset is AI-generated, so either our assumption of our training data being real is wrong, or, more likely, `CNNDetection` is not a perfect model. For this reason we have instead implemented the following procedure for evaluation:
+`CNNDetection` has some interesting quirks, for one it predicts that $\sim 20\%$ of the CIFAR-100 dataset is AI-generated, so either our assumption of our training data being real is wrong, or, more likely, `CNNDetection` is not a perfect model. For this reason we have instead implemented the following procedure for evaluation:
 
 1. We generate $n_{fake}$ images with our model, and sample another  $n_{real}$ images from the CIFAR-100 test set.
 2. We run the `CNNDetection` algorithm on both sets, logging the percentage of images it denotes as `real` in each set $p_{real}$ and $p_{fake}$.
@@ -211,7 +211,7 @@ To setup an exact copy of the development environment, the following steps shoul
 
 We have used most of the stuff from the Cookiecutter template, e.g. `src`, `models` and `data`. The only thing we did not end up using was the `notebooks` folder, as we never ended up actually making any.
 
-We have added a folder called `CNNDetection`, mainly for the reason of clear distinction between code we wrote, and code we "borrowed" from others. 
+We have added a folder called `CNNDetection`, mainly for the reason of clear distinction between code we wrote, and code we "borrowed" from others.
 
 ### Question 6
 
@@ -260,7 +260,11 @@ We have added a folder called `CNNDetection`, mainly for the reason of clear dis
 >
 > Answer:
 
---- question 8 fill here ---
+Code covereage is displayed as a badge in the repository
+![alt text](image.png)
+*Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not.
+
+Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still.
 
 ### Question 9
 
@@ -294,7 +298,7 @@ With respect to verion control, we did luckily not have any large enough issues 
 >
 > Answer:
 
-In principle we did set up dvc for the project, mainly just to see if we could. Though, since we just use the CIFAR-100 dataset, it's not like we expect there to be any version control to take care of for this project.
+We did set up DVC for this project, though not exactly for its inteded purposes. Since we never actually changed our dataset (the CIFAR-100 dataset is fairly stationary), we have only done a mock run of DVC by pushing the CIFAR-10 dataset first, and then just overwriting it with our actual data afterwards. This was just to enable us to actually do something with the data-drift monitoring exercises later.
 
 Data version control would definitely be helpful in a scenario where we actually expected to expand our training data. For us, in the context of GANs, this could perhaps correspond to finding more images of the same targets or expanding the range of targets (one could certainly imagine wanting to generate images of something other than bears or tables).
 
@@ -332,7 +336,7 @@ Data version control would definitely be helpful in a scenario where we actually
 >
 > Answer:
 
-We ended up setting up two training commands, one using hydra and one using wandb, both of which are called with the `invoke` framework. So we would call either 
+We ended up setting up two training commands, one using hydra and one using wandb, both of which are called with the `invoke` framework. So we would call either
 
 `invoke train-hydra --experiment.yaml` or `invoke train-wandb --arg1...`
 
@@ -373,9 +377,20 @@ Hydra solves the issue of reproducability by simply requiring a config file to r
 > *As seen in the first image when have tracked ... and ... which both inform us about ... in our experiments.*
 > *As seen in the second image we are also tracking ... and ...*
 >
-> Answer:
+Answer:
+In this first image we see the stats we log in wandb. For the most parts its just different loss functions, but we also stop every once in a while and generate an image with our model, and ask `CNNDetection` how AI-generated it looks (this is shown in the graph labeled synthetic prob), this is acutally a fairly interesting graph, and one might wonder why it believes our noise is not AI-generated.
+![alt text](figures/wandb1.png)
 
---- question 14 fill here ---
+In the same experiment we have logged examples of images over the training. Here we see a few samples over the training period, and notice that this model seems to have learned that black images with some sporadic extreme dots of red/blue/green is the way to go.
+![alt text](figures/wandb2.png)
+
+For the purposes of reproducability, we can go to the overview tab, and see the hyperparameters that lead to this were
+- $batch\_ size = 32$
+- $epochs = 50$
+- $k\_ discriminator = 3$
+- $learning\_ rate = 4.1 \cdot 10^{-4}$
+
+
 
 ### Question 15
 
@@ -404,6 +419,15 @@ Hydra solves the issue of reproducability by simply requiring a config file to r
 > *run of our main code at some point that showed ...*
 >
 > Answer:
+Experiments can have a lot of meanings.
+
+For general python files we used the debugger within python, e.g. for vscode we setup breakpoints and saw the states of the code at its point of failure.
+
+When training on the cloud computer caused issues, we used the information provided by google cloud, e.g. logs and error messages to debug the problem.
+
+We ensured that actions on github, which included linter checks and unit tests were performed pre-commit so appropriate actions could be taken before merging with the main branch.
+
+Right after training, we profiled the code but time constraints did not allow us to make the code faster.
 
 --- question 16 fill here ---
 
@@ -496,7 +520,13 @@ Hydra solves the issue of reproducability by simply requiring a config file to r
 >
 > Answer:
 
---- question 23 fill here ---
+We have made an API for our model using FastAPI. The API essentially downloads a model form our gcloud bucket, and when recivieng a request, it responds by generating an image, using this model. The API doesn't really take any input, since its just a GAN you can't really request anything specific from it. However we recommend asking it nicely anyway, since this gives better performance (citation needed).
+
+We also save any image generated by this model in the same bucket. Currently we do not have a good use for these images, but it seems like a nice thing to have in future scenarios.
+
+The API is currently not set up as a part of a pipeline. It simply just loads a trained genereator model from a bucket, but nothing is set up to add new verions of this model to the bucket. However, in the future it will hopefully be convenient that we just have to add a new model to the bucket, and then our API-model is updated. 
+
+
 
 ### Question 24
 
@@ -512,7 +542,22 @@ Hydra solves the issue of reproducability by simply requiring a config file to r
 >
 > Answer:
 
---- question 24 fill here ---
+We have deployed our API both locally, and to the cloud. Initially only locally, for easier debugging and to ensure it worked. When it did build a docker image, and deployed this on cloud run.
+
+The API we deployed is very simple. Given a request, the server simply sends back a random image. This should hopefully be possible to do with curl using
+
+```sh
+curl -X POST "https://api-image-5307485050.europe-west1.run.app/generate" \
+     -H "Content-Type: application/json" \
+     -d '{"request": "Please make me an image :D"}' \
+     --output generated_image.png
+```
+
+We also made a python script `test_api.py` in the tests folder, which essentially does the same, just in a way that's nicer to call.
+
+
+*NOTE* Our model sucks, so the downloaded image will just be 32x32 pixels of "abstract art".
+
 
 ### Question 25
 
@@ -542,7 +587,16 @@ Hydra solves the issue of reproducability by simply requiring a config file to r
 >
 > Answer:
 
---- question 26 fill here ---
+We did not end up implementing monitoring on our model. Mainly because we could not find a purpose for it. Since we're just training unconditional GANs we have no real use for tracking it's output, since, assuming we actually made a well-trained model, would always just generate images which are similar to the training data. This should never change, and there is not way usage of a trained model could actually drift.
+
+However, just to get a feeling of how to acutally implemenent monitoring, we did set up monitoring on our training data. We have an API, which given the request
+```sh
+curl -X GET "https://data-drift-report-generator-5307485050.europe-west1.run.app/report?n=<N-IMAGES>" --output report.html
+```
+where `<N-IMAGES>` is the the number of images from the two sets to compare. It can also be called from `test_monitoring.py` in the tests folder. The script downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. In general we do not recommend using a large `n`, since the code is quite unoptimized, which is also why we chose subsampling in the first place.
+As discussed in the dvc-part of the report, we never really used dvc, since we never changed our dataset. So right now this report just tries to detect drift between CIFAR-10 and CIFAR-100. The report compares the 512 features from the CLIP-model, as in the exercises.
+
+In the future we imagine this feature could be useful when acually expandning training data, in askin how similar two sets actually are.
 
 ## Overall discussion of project
 
@@ -561,7 +615,11 @@ Hydra solves the issue of reproducability by simply requiring a config file to r
 >
 > Answer:
 
---- question 27 fill here ---
+With regards to credits, as of 11:20 on Friday, we have spent a total of $ 3.57\, \$ $ in Google Cloud. We expect this number to be slightly wrong, since a group member decided to do GPU training in Vertex AI the night before this, and the billing report only shows $ 0.08\, \$ $ spent on Vertex AI.
+
+The bulk of our credits where spent in Storage $( 2.37\, \$ ) $ and Artifact Registry $( 0.87\, \$)$, the rest is some mix of Vertex AI, Compute Engine an Cloud Run.
+
+Overall working in the cloud is a somewhat frustating experience, but well worth the satisfaction, when you finally get your pibeline set up, and everything starts communicating.
 
 ### Question 28
 
@@ -594,7 +652,23 @@ Hydra solves the issue of reproducability by simply requiring a config file to r
 >
 > Answer:
 
---- question 29 fill here ---
+### *Diagram of project*
+![hello](figures/MLOps_project_diagram.jpg)
+
+Our diagram is split into 5 colored regions, essentially just categorizing services we have used. Between services we have arrows. Starting at *Group 83* (the laptop left-center) it is possible to follow journeys of colored arrows through the landscape.
+
+**Models and code flow**
+In the local setup group members can work on individual branches of new features, once a feature is finished a pull request is sent to Github, where unit tests (and other standarizations) are run. If everything passes the members branch is merged into the main branch.
+
+On this the model flow is triggered. Cloud build starts building new docker images, which are stored in the artifact registry (we currently have 3, one for each of training, API and monitoring). The training image contains information on training loop and model, it is however missing hyperparameters, such as batch size and learning rate.
+
+When we wish to train a new model, a config file containing hyperparameters are sent to Vertex AI, which then pulls a training image from our Artifact Registry and Data from a Cloud Bucket, and trains a new model. This trained model is the stored in a bucket, where it awaits use. During all of this either Hydra or Wandb (which is chosen is a group member preference) keeps track of performed experiments (in the case of Wandb, models are also stored in a seperate registry, but this is mainly an artifact of code being writting in parallel).
+
+The most recent trained model is ready for use, and is grabbed by our cloud run application, which also loads the other two images in the registry. The most recent model is now online, and potential users can interact with it through the API.
+
+**Data flow**
+Data is pushed from the local setup to a Cloud Bucket, DVC ensures we keep track of versioning. The newest version of the data is accessed by Vertex AI during training. Data is also accessed by our Data Drift Monitor, which is setup such that, when requested, it sends a report on data drift, comparing the most recent data set added to the bucket to the previous one.
+
 
 ### Question 30
 
@@ -608,7 +682,13 @@ Hydra solves the issue of reproducability by simply requiring a config file to r
 >
 > Answer:
 
---- question 30 fill here ---
+A challenge of this project was getting docker containers to run in the cloud. The reason for this struggle was 3-fold. For one, building docker containers just takes a while, for us this means that any debugging just took ages, as a single deplyment to the cloud could take upto 25 minutes, before we got our error message, and could revisit the problem.
+
+The second reason lies in reading logs from Google Cloud, when looking back at it, this should definitely not have been an issue at all, but for some reason the new UI just made the entire process of actually tracking down errors became more difficult than usual.
+
+The last reason is a specific error in configuring service accounts, we did not realise that accessing stuff from a bucket in cloud run was done from a service account, which did not have access to buckets. Much time was spent debugging this.
+
+To overcome this challenge we used TA's. They're a great resource when you're completely clueless of what an error could be, and were a great help in pointing out what we needed to look out for, when debugging on our own.
 
 ### Question 31
 

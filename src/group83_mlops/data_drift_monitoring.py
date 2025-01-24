@@ -1,18 +1,13 @@
-import json
-import os
-from pathlib import Path
 
 import anyio
 import nltk
 import pandas as pd
-from evidently.metric_preset import TargetDriftPreset, DataDriftPreset, DataQualityPreset,TargetDriftPreset
+from evidently.metric_preset import DataDriftPreset, DataQualityPreset,TargetDriftPreset
 from evidently.report import Report
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from google.cloud import storage
 
-import requests
-from PIL import Image
 from transformers import CLIPModel, CLIPProcessor
 import torch
 from torchvision.transforms import ToPILImage
@@ -47,7 +42,7 @@ def download_data():
     # Download the latest version
     latest_blob = blobs[0]
     latest_blob.download_to_filename("new.pt")
-    print(f"Downloaded latest version of your data")
+    print("Downloaded latest version of your data")
 
     # Download the previous version if it exists
     if len(blobs) > 1:
@@ -57,7 +52,7 @@ def download_data():
     else:
         backup_blob = storage_client.bucket(BACKUP_BUCKET).blob(BACKUP_NAME)
         backup_blob.download_to_filename("old.pt")
-        print(f"Versioning is fucked again, dowloaded CIFAR10 dataset from backup instead")
+        print("Versioning is fucked again, dowloaded CIFAR10 dataset from backup instead")
     return None
 
 def data_2_csvs(n_images_check):
@@ -85,7 +80,7 @@ def data_2_csvs(n_images_check):
     if num_images < n_images_check:
         indices = range(num_images)
 
-    
+
     for i, idx in enumerate(indices):
         old = old_data[idx,:,:,:]
         inputs = processor(text=None, images=old, return_tensors="pt", padding=True)
@@ -104,7 +99,7 @@ def data_2_csvs(n_images_check):
 
         img_features = model.get_image_features(inputs["pixel_values"])
         df_new.loc[i] = img_features[0].detach().numpy()
-    
+
     return df_new, df_old
 
 def lifespan(app: FastAPI):
@@ -122,7 +117,6 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/report", response_class=HTMLResponse)
 async def get_report(n: int = 100):
     """Generate and return the report."""
-    print(n)
     df_old, df_new = data_2_csvs(n_images_check = n)
     report = Report(metrics=[DataDriftPreset(), DataQualityPreset(),TargetDriftPreset()])
     report.run(reference_data=df_old, current_data=df_new)
@@ -132,4 +126,3 @@ async def get_report(n: int = 100):
         html_content = await f.read()
 
     return HTMLResponse(content=html_content, status_code=200)
-

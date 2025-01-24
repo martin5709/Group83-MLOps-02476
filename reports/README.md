@@ -278,7 +278,11 @@ Training tests that Hydra works as expected.
 >
 > Answer:
 
---- question 8 fill here ---
+Code covereage is displayed as a badge in the repository
+![alt text](image.png)
+*Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not.
+
+Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still.
 
 ### Question 9
 
@@ -696,7 +700,13 @@ Data is pushed from the local setup to a Cloud Bucket, DVC ensures we keep track
 >
 > Answer:
 
---- question 30 fill here ---
+A challenge of this project was getting docker containers to run in the cloud. The reason for this struggle was 3-fold. For one, building docker containers just takes a while, for us this means that any debugging just took ages, as a single deplyment to the cloud could take upto 25 minutes, before we got our error message, and could revisit the problem.
+
+The second reason lies in reading logs from Google Cloud, when looking back at it, this should definitely not have been an issue at all, but for some reason the new UI just made the entire process of actually tracking down errors became more difficult than usual.
+
+The last reason is a specific error in configuring service accounts, we did not realise that accessing stuff from a bucket in cloud run was done from a service account, which did not have access to buckets. Much time was spent debugging this.
+
+To overcome this challenge we used TA's. They're a great resource when you're completely clueless of what an error could be, and were a great help in pointing out what we needed to look out for, when debugging on our own.
 
 ### Question 31
 

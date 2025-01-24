@@ -128,6 +128,8 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     # Fix random state to ensure reproducability.
     torch.manual_seed(random_state)
 
+    if vertex:
+        print(f"The current device is: {DEVICE}. Hopefully this matches to cuda, assuming that you are training with GPU.")
 
     # Setup dataloading from data.py
     if vertex:

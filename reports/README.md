@@ -234,14 +234,7 @@ The linter in question was ruff.
 The pre-commit.yaml file automatically format the code after the first commit.
 Lastly we implemented a github action which checks the code format, we decided not to make this a required action to merge with main.
 
-
-We implimented a pre-commit.yaml file which checks if the code follows the PEP8 standard.
-We added some exceptions to this, e.g. in train.py we had dependencies which the linter could not find, so we allowed them not to be checked by said linter.
-The linter in question was ruff.
-The pre-commit.yaml file automatically format the code after the first commit.
-Lastly we implemented a github action which checks the code format, we decided not to make this a required action to merge with main.
-
-
+These concepts are important in larger projects because you need some uniformity within the project even with a lot of people working on it. 
 
 ## Version control
 
@@ -435,9 +428,9 @@ For our project we developed several images: one for training, one for the API b
 
 For the deployment of the model we have created a docker image that runs the API with python's FastAPI module, and a docker container that monitors data drifting.
 
-When we were still running our docker images locally, we run `docker run trainer:latest ...` adding the experiment specific parameters, and mounting the volumes when we were still saving the models locally. Link to the docker images: 
+When we were still running our docker images locally, we run `docker run trainer:latest ...` adding the experiment specific parameters, and mounting the volumes when we were still saving the models locally. Link to the docker images: [here](europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/train:latest)
 
-For Continuous Integration purposes, every time code is pushed to the main branch, the docker image building is triggered in Google Cloud and images are then pushed to the Artifact registry.
+For Continuous Integration purposes, every time code is pushed to the main branch, the docker image building is triggered in Google Cloud and images are then pushed to the Artifact Registry.
 
 ### Question 16
 
@@ -651,7 +644,7 @@ However, just to get a feeling of how to acutally implemenent monitoring, we did
 ```sh
 curl -X GET "https://data-drift-report-generator-5307485050.europe-west1.run.app/report?n=<N-IMAGES>" --output report.html
 ```
-where `<N-IMAGES>` is the the number of images from the two sets to compare. It can also be called from `test_monitoring.py` in the tests folder. The script downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. In general we do not recommend using a large `n`, since the code is quite unoptimized, which is also why we chose subsampling in the first place.
+or a call to `test_monitoring.py` in the tests folder. Downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. The variable `n` is how many images to take into this report (using all 50000 images in our training data takes a while, so we just select a subsample to actually report on).
 As discussed in the dvc-part of the report, we never really used dvc, since we never changed our dataset. So right now this report just tries to detect drift between CIFAR-10 and CIFAR-100. The report compares the 512 features from the CLIP-model, as in the exercises.
 
 In the future we imagine this feature could be useful when acually expandning training data, in askin how similar two sets actually are.
@@ -772,6 +765,3 @@ To overcome this challenge we used TA's. They're a great resource when you're co
 > Answer:
 
 --- question 31 fill here ---
-s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template which martin setup), did profiling on the train and setup the first iteration of the dataloader and data class.
-
-s203822: In general in charge of a lot of different tasks and infrastructure. The biggest of these being the Vertex AI management, hydra and typer configs, the model and training development, and GitHub actions for testing.

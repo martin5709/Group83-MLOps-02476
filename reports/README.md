@@ -693,7 +693,6 @@ Overall working in the cloud is a somewhat frustating experience, but well worth
 >
 > Answer:
 
-### *Diagram of project*
 ![hello](figures/MLOps_project_diagram.jpg)
 
 Our diagram is split into 5 colored regions, essentially just categorizing services we have used. Between services we have arrows. Starting at *Group 83* (the laptop left-center) it is possible to follow journeys of colored arrows through the landscape.

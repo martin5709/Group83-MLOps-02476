@@ -452,7 +452,6 @@ We ensured that actions on github, which included linter checks and unit tests w
 
 Right after training, we profiled the code but time constraints did not allow us to make the code faster.
 
---- question 16 fill here ---
 
 ## Working in the cloud
 
@@ -688,7 +687,7 @@ Overall working in the cloud is a somewhat frustating experience, but well worth
 >
 > Answer:
 
---- question 28 fill here ---
+We did not implement anything not discussed in a previous question.
 
 ### Question 29
 
@@ -766,8 +765,12 @@ To overcome this challenge we used TA's. They're a great resource when you're co
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
-s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template which martin setup), did profiling on the train and setup the first iteration of the dataloader and data class.
+s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template), did profiling on the train and setup the first iteration of the dataloader and data class.
 
 s203822: In general in charge of a lot of different tasks and infrastructure. The biggest of these being the Vertex AI management, hydra and typer configs, the model and training development, and GitHub actions for testing.
 
-s243266: in charge of the docker files locally and in the cloud. Google Cloud Artifacts and image building triggers.
+s205717: Designated local tester, as the only group member with a GPU to train the very early models on, and the only one with a powerful enough pc to build docker images in a reasonable time. Unittesting of API's. Worked on model API and data drift monitoring API.
+
+s203768: Set up Wandb sweeping agent + artifact registry (which we never really used). Worked on model API and data drift monitoring API. Load test of model API. Attempted evaluation with CNNDetection.
+
+s243266: in charge of the docker files locally and in the cloud. Cloud Build for docker images and triggers.

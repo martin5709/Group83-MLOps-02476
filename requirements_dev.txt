@@ -25,3 +25,6 @@ pytest-cov==6.0.0
 # dvc
 dvc==3.59.0
 dvc-gs==3.0.1
+
+# Load testing
+locust==2.32.6

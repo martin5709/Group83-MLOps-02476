@@ -210,6 +210,8 @@ We have used most of the stuff from the Cookiecutter template, e.g. `src`, `mode
 
 We have added a folder called `CNNDetection`, mainly for the reason of clear distinction between code we wrote, and code we "borrowed" from others.
 
+In general, the Cookiecutter template was proven useful, as it set up directories for compartmentalizing our files. However, we ended up with a couple of extra files in the working directory that we could have fond a better place for them.
+
 ### Question 6
 
 > **Did you implement any rules for code quality and format? What about typing and documentation? Additionally,**
@@ -229,8 +231,7 @@ The linter in question was ruff.
 The pre-commit.yaml file automatically format the code after the first commit.
 Lastly we implemented a github action which checks the code format, we decided not to make this a required action to merge with main.
 
-
---- question 6 fill here ---
+These concepts are important in larger projects because you need some uniformity within the project even with a lot of people working on it. 
 
 ## Version control
 
@@ -260,8 +261,6 @@ Monitoring tests that we get an OK repsonse from report generated using data-dri
 
 Training tests that Hydra works as expected.
 
---- question 7 fill here ---
-
 ### Question 8
 
 > **What is the total code coverage (in percentage) of your code? If your code had a code coverage of 100% (or close**
@@ -276,7 +275,7 @@ Training tests that Hydra works as expected.
 > Answer:
 
 Code covereage is displayed as a badge in the repository
-![alt text](image.png)
+![alt text](figures/badge.png)
 *Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not.
 
 Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still.
@@ -294,11 +293,11 @@ Even if we had gone to 100\% code coverage, this could not have gauranteed that 
 >
 > Answer:
 
-We have made plenty use of both brances and pull requests in this project. Branches have been a significant help in regards to parallelising tasks, s.t. individual group members could work on different parts of the code, without interferring. Suprisingly the branches have actually also been helpful when a group member needed aid in sorting out a specific issue on their branch, since another group member could easily just switch branch, and try out the new code for themselves, instead of everyone just looking over shoulders, and running stuff on one PC.
+We have made plenty use of both branches and pull requests in this project. Branches have been a significant help in regards to parallelising tasks, s.t. individual group members could work on different parts of the code, without interferring. Suprisingly the branches have actually also been helpful when a group member needed aid in sorting out a specific issue on their branch, since another group member could easily just switch branch, and try out the new code for themselves, instead of everyone just looking over shoulders, and running stuff on one PC.
 
 We set up pull requests to work along tests, e.g. "Are you attempting to commit large files?", this helped ensuring no major errors would make their way into the main branch. To make our lives easier, we did set it up so any group member could create their own pull request, and merge their branch into main.
 
-With respect to verion control, we did luckily not have any large enough issues to actually have to revert changes, but it was sometimes helpful to be able to just close a branch, if you messed it up enough.
+With respect to version control, we did luckily not have any large enough issues to actually have to revert changes, but it was sometimes helpful to be able to just close a branch, if you messed it up enough.
 
 ### Question 10
 
@@ -432,7 +431,13 @@ For the purposes of reproducability, we can go to the overview tab, and see the 
 >
 > Answer:
 
---- question 15 fill here ---
+For our project we developed several images: one for training, one for the API backend, and one for data drift monitoring.
+
+For the deployment of the model we have created a docker image that runs the API with python's FastAPI module, and a docker container that monitors data drifting.
+
+When we were still running our docker images locally, we run `docker run trainer:latest ...` adding the experiment specific parameters, and mounting the volumes when we were still saving the models locally. Link to the docker images: [here](europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/train:latest)
+
+For Continuous Integration purposes, every time code is pushed to the main branch, the docker image building is triggered in Google Cloud and images are then pushed to the Artifact Registry.
 
 ### Question 16
 
@@ -456,7 +461,6 @@ We ensured that actions on github, which included linter checks and unit tests w
 
 Right after training, we profiled the code but time constraints did not allow us to make the code faster.
 
---- question 16 fill here ---
 
 ## Working in the cloud
 
@@ -625,7 +629,11 @@ We also made a python script `test_api.py` in the tests folder, which essentiall
 >
 > Answer:
 
---- question 25 fill here ---
+We are performing some very simple unittests on our API, e.i. check if the server is running, and if it sends us a png on request, but nothing else.
+
+For load tests we did a few quick ones using locust. We did 3 quick experiments, each of 60 seconds. The first had 1 user, then 10 users and lastly 50 users. As we see respone time scales very poorly with number of users, going up to $ \sim 5 $ seconds at the $ 50 $'th percentile when having 50 users. Interestingly, we only had failures when we used 10 users, but had none with 50 users. 
+
+![alt text](figures/locust.png)
 
 ### Question 26
 
@@ -688,7 +696,7 @@ Overall working in the cloud is a somewhat frustating experience, but well worth
 >
 > Answer:
 
---- question 28 fill here ---
+We did not implement anything not discussed in a previous question.
 
 ### Question 29
 
@@ -765,7 +773,12 @@ To overcome this challenge we used TA's. They're a great resource when you're co
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
---- question 31 fill here ---
-s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template which martin setup), did profiling on the train and setup the first iteration of the dataloader and data class.
+s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template), did profiling on the train and setup the first iteration of the dataloader and data class.
 
 s203822: In general in charge of a lot of different tasks and infrastructure. The biggest of these being the Vertex AI management, hydra and typer configs, the model and training development, and GitHub actions for testing.
+
+s205717: Designated local tester, as the only group member with a GPU to train the very early models on, and the only one with a powerful enough pc to build docker images in a reasonable time. Unittesting of API's. Worked on model API and data drift monitoring API.
+
+s203768: Set up Wandb sweeping agent + artifact registry (which we never really used). Worked on model API and data drift monitoring API. Load test of model API. Attempted evaluation with CNNDetection.
+
+s243266: in charge of the docker files locally and in the cloud. Cloud Build for docker images and triggers.

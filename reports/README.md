@@ -493,7 +493,9 @@ We have several buckets, so we will show the one with our DVC data in it:
 >
 > Answer:
 
---- question 20 fill here ---
+![Artifact Repository](figures/ArtifactRepository.png)
+
+![Artifact Repository Details](figures/ArtifactRepoDetails.png)
 
 ### Question 21
 
@@ -502,7 +504,9 @@ We have several buckets, so we will show the one with our DVC data in it:
 >
 > Answer:
 
---- question 21 fill here ---
+![Cloud Build History Part 1](figures/CloudBuildHistory1.png)
+
+![Cloud Build History Part 2](figures/CloudBuildHistory2.png)
 
 ### Question 22
 

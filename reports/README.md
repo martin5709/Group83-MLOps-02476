@@ -589,7 +589,7 @@ However, just to get a feeling of how to acutally implemenent monitoring, we did
 ```sh
 curl -X GET "https://data-drift-report-generator-5307485050.europe-west1.run.app/report?n=<N-IMAGES>" --output report.html
 ```
-where `<N-IMAGES>` is the the number of images from the two sets to compare, or a call to `test_monitoring.py` in the tests folder. Downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. The variable `n` is how many images to take into this report (using all 50000 images in our training data takes a while, so we just select a subsample to actually report on).
+where `<N-IMAGES>` is the the number of images from the two sets to compare. It can also be called from `test_monitoring.py` in the tests folder. The script downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. In general we do not recommend using a large `n`, since the code is quite unoptimized, which is also why we chose subsampling in the first place.
 As discussed in the dvc-part of the report, we never really used dvc, since we never changed our dataset. So right now this report just tries to detect drift between CIFAR-10 and CIFAR-100. The report compares the 512 features from the CLIP-model, as in the exercises.
 
 In the future we imagine this feature could be useful when acually expandning training data, in askin how similar two sets actually are.
@@ -611,7 +611,11 @@ In the future we imagine this feature could be useful when acually expandning tr
 >
 > Answer:
 
---- question 27 fill here ---
+With regards to credits, as of 11:20 on Friday, we have spent a total of $ 3.57\, \$ $ in Google Cloud. We expect this number to be slightly wrong, since a group member decided to do GPU training in Vertex AI the night before this, and the billing report only shows $ 0.08\, \$ $ spent on Vertex AI.
+
+The bulk of our credits where spent in Storage $( 2.37\, \$ ) $ and Artifact Registry $( 0.87\, \$)$, the rest is some mix of Vertex AI, Compute Engine an Cloud Run.
+
+Overall working in the cloud is a somewhat frustating experience, but well worth the satisfaction, when you finally get your pibeline set up, and everything starts communicating.
 
 ### Question 28
 
@@ -644,7 +648,23 @@ In the future we imagine this feature could be useful when acually expandning tr
 >
 > Answer:
 
---- question 29 fill here ---
+### *Diagram of project*
+![hello](figures/MLOps_project_diagram.jpg)
+
+Our diagram is split into 5 colored regions, essentially just categorizing services we have used. Between services we have arrows. Starting at *Group 83* (the laptop left-center) it is possible to follow journeys of colored arrows through the landscape.
+
+**Models and code flow**
+In the local setup group members can work on individual branches of new features, once a feature is finished a pull request is sent to Github, where unit tests (and other standarizations) are run. If everything passes the members branch is merged into the main branch.
+
+On this the model flow is triggered. Cloud build starts building new docker images, which are stored in the artifact registry (we currently have 3, one for each of training, API and monitoring). The training image contains information on training loop and model, it is however missing hyperparameters, such as batch size and learning rate.
+
+When we wish to train a new model, a config file containing hyperparameters are sent to Vertex AI, which then pulls a training image from our Artifact Registry and Data from a Cloud Bucket, and trains a new model. This trained model is the stored in a bucket, where it awaits use. During all of this either Hydra or Wandb (which is chosen is a group member preference) keeps track of performed experiments (in the case of Wandb, models are also stored in a seperate registry, but this is mainly an artifact of code being writting in parallel).
+
+The most recent trained model is ready for use, and is grabbed by our cloud run application, which also loads the other two images in the registry. The most recent model is now online, and potential users can interact with it through the API.
+
+**Data flow**
+Data is pushed from the local setup to a Cloud Bucket, DVC ensures we keep track of versioning. The newest version of the data is accessed by Vertex AI during training. Data is also accessed by our Data Drift Monitor, which is setup such that, when requested, it sends a report on data drift, comparing the most recent data set added to the bucket to the previous one.
+
 
 ### Question 30
 

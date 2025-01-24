@@ -225,7 +225,7 @@ In general, the Cookiecutter template was proven useful, as it set up directorie
 >
 > Answer:
 
-We implimented a pre-commit.yaml file which checks if the code follows the PEP8 standard.
+We implemented a pre-commit.yaml file which checks if the code follows the PEP8 standard.
 We added some exceptions to this, e.g. in train.py we had dependencies which the linter could not find, so we allowed them not to be checked by said linter.
 The linter in question was ruff.
 The pre-commit.yaml file automatically format the code after the first commit.
@@ -277,7 +277,7 @@ Training tests that Hydra works as expected.
 
 Code covereage is displayed as a badge in the repository
 ![alt text](figures/badge.png)
-*Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not.
+*Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not. Though, it is now at 43\% as of 22:22 January 24th.
 
 Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still. As was famously said by Edsger W. Dijkstra: "Program testing can be used to show the presence of bugs, but never to show their absence!" [quote-from-here](https://www.goodreads.com/quotes/506689-program-testing-can-be-used-to-show-the-presence-of) and [here](https://en.wikiquote.org/wiki/Edsger_W._Dijkstra).
 
@@ -365,7 +365,7 @@ Their functionality can be described as follows:
 
 We ended up setting up two training commands, one using hydra and one using wandb, both of which are called with the `invoke` framework. So we would call either
 
-`invoke train-hydra --experiment.yaml` or `invoke train-wandb --arg1...`
+`invoke train-hydra --experiment=exp1` or `invoke train-wandb --arg1...`
 
 so hydra training takes a yaml file describing the experiment, the wandb takes arguments (sutch as batch size and learning rate). The `train-wandb` was set up this way, so it was easy to set up a hyperparameter sweep, which just parsed arguments to the function, we essentially never actually ran `invoke train-wandb --arg1...`, since its very tedious to write the arguments in by hand.
 
@@ -436,7 +436,7 @@ For our project we developed several images: one for training, one for the API b
 
 For the deployment of the model we have created a docker image that runs the API with python's FastAPI module, and a docker container that monitors data drifting.
 
-When we were still running our docker images locally, we run `docker run trainer:latest ...` adding the experiment specific parameters, and mounting the volumes when we were still saving the models locally. Link to the docker images: [here](europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/train:latest)
+When we were still running our docker images locally, we run `docker run trainer:latest ...` adding the experiment specific parameters, and mounting the volumes when we were still saving the models locally. Link to the docker images: [here](europe-west1-docker.pkg.dev/mlops-project-group83/docker-images/train:latest) (though these may not be accessible due to it being in a private bucket). The **docker files** can be found [here](https://github.com/martin5709/Group83-MLOps-02476/tree/main/dockerfiles), with a **specific one** [here](https://github.com/martin5709/Group83-MLOps-02476/blob/main/dockerfiles/train.dockerfile).
 
 For Continuous Integration purposes, every time code is pushed to the main branch, the docker image building is triggered in Google Cloud and images are then pushed to the Artifact Registry.
 
@@ -452,6 +452,7 @@ For Continuous Integration purposes, every time code is pushed to the main branc
 > *run of our main code at some point that showed ...*
 >
 > Answer:
+
 Experiments can have a lot of meanings.
 
 For general python files we used the debugger within python, e.g. for vscode we setup breakpoints and saw the states of the code at its point of failure.
@@ -651,7 +652,7 @@ For load tests we did a few quick ones using locust. We did 3 quick experiments,
 
 We did not end up implementing monitoring. Since we are training unconditional GANs we have no use for tracking its output, since, assuming we made a well-trained model, would always generate images which are similar to the training data, and which output doesn't depend on the user.
 
-However, just to get a feeling of how to acutally implemenent monitoring, we did set up monitoring on our training data. We have an API, which given the request
+However, just to get a feeling of how to actually implement monitoring, we did set up monitoring on our training data. We have an API, which given the request
 ```sh
 curl -X GET "https://data-drift-report-generator-5307485050.europe-west1.run.app/report?n=<N-IMAGES>" --output report.html
 ```
@@ -680,7 +681,7 @@ With regards to credits, as of 11:20 on Friday, we have spent a total of $ 3.57\
 
 The bulk of our credits where spent in Storage $( 2.37\, \$ ) $ and Artifact Registry $( 0.87\, \$)$, the rest is some mix of Vertex AI, Compute Engine an Cloud Run.
 
-Overall working in the cloud is a somewhat frustating experience, but well worth the satisfaction, when you finally get your pibeline set up, and everything starts communicating.
+Overall working in the cloud is a somewhat frustating experience, but well worth the satisfaction, when you finally get your pipeline set up, and everything starts communicating.
 
 ### Question 28
 
@@ -696,7 +697,9 @@ Overall working in the cloud is a somewhat frustating experience, but well worth
 >
 > Answer:
 
-We did not implement anything not discussed in a previous question.
+Yes, we implemented Alert Systems in GCP, such that whenever a deployment of Cloud Run fails, a notification is sent by email. The same is also the case when a Vertex AI instance fails. We did this for convenience during debugging, such that one could move on to some other task while the systems were training, and then one would be notified over email when it failed.
+
+Likewise, we implemented distributed data loading using the `num_workers` parameter in the Dataloader. We did this in an effort to improve the training speed.
 
 ### Question 29
 
@@ -718,6 +721,7 @@ We did not implement anything not discussed in a previous question.
 Our diagram is split into 5 colored regions, essentially just categorizing services we have used. Between services we have arrows. Starting at *Group 83* (the laptop left-center) it is possible to follow journeys of colored arrows through the landscape.
 
 **Models and code flow**
+
 In the local setup group members can work on individual branches of new features, once a feature is finished a pull request is sent to Github, where unit tests (and other standarizations) are run. If everything passes the members branch is merged into the main branch.
 
 On this the model flow is triggered. Cloud build starts building new docker images, which are stored in the artifact registry (we currently have 3, one for each of training, API and monitoring). The training image contains information on training loop and model, it is however missing hyperparameters, such as batch size and learning rate.
@@ -745,7 +749,7 @@ Data is pushed from the local setup to a Cloud Bucket, DVC ensures we keep track
 
 A large struggle was keeping up with version control, this included not just which package to import and their versions but also ensuring everyone had access to dvc, wandb and so forth.
 
-Large amount of times were dedicated to connect different services which also was hard to debug and the debugging process itself was error prone, as machines sometimes tend to differ in subtle ways.
+A large amount of time was dedicated to connecting the different services together. These were also hard to debug, and the debugging process itself was error prone, since the machines sometimes differ in subtle ways.
 
 We also saw some problems in the subtlety between git and github when using the command line, e.g. some commands are not available just using git and the workflow of github took a while to setup.
 
@@ -756,6 +760,8 @@ The second reason lies in reading logs from Google Cloud, when looking back at i
 The last reason is a specific error in configuring service accounts, we did not realise that accessing stuff from a bucket in cloud run was done from a service account, which did not have access to buckets. Much time was spent debugging this.
 
 To overcome this challenge we used TA's. They're a great resource when you're completely clueless of what an error could be, and were a great help in pointing out what we needed to look out for, when debugging on our own.
+
+Furthermore, the model training itself was also a challenge, since doing validation on GAN models is not trivial, and they take a long time to train, which in hindsight, would have been good to have kept in mind.
 
 ### Question 31
 
@@ -773,12 +779,14 @@ To overcome this challenge we used TA's. They're a great resource when you're co
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
-s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template), did profiling on the train and setup the first iteration of the dataloader and data class.
+Student s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template), did profiling on the train and setup the first iteration of the dataloader and data class.
 
-s203822: In general in charge of a lot of different tasks and infrastructure. The biggest of these being the Vertex AI management, hydra and typer configs, the model and training development, and GitHub actions for testing.
+Student s203822: In general in charge of a lot of different tasks and infrastructure. The biggest of these being the Vertex AI management, hydra and typer configs, the model and training development, and GitHub actions for testing. I also used ChatGPT to help me write the two following Linux CMD Lines: Line 22 in `.github/workflows/check_python_requirements.yaml` and Line 22 in `.github/workflows/check_file_size.yaml`.
 
-s205717: Designated local tester, as the only group member with a GPU to train the very early models on, and the only one with a powerful enough pc to build docker images in a reasonable time. Unittesting of API's, and code. Worked on model API and data drift monitoring API.
+Student s205717: Designated local tester, as the only group member with a GPU to train the very early models on, and the only one with a powerful enough pc to build docker images in a reasonable time. Unittesting of API's, and code. Worked on model API and data drift monitoring API.
 
-s203768: Set up Wandb sweeping agent + artifact registry (which we never really used). Worked on model API and data drift monitoring API. Load test of model API. Attempted evaluation with CNNDetection.
+Student s203768: Set up Wandb sweeping agent + artifact registry (which we never really used). Worked on model API and data drift monitoring API. Load test of model API. Attempted evaluation with CNNDetection.
 
-s243266: in charge of the docker files locally and in the cloud. Cloud Build for docker images and triggers.
+Student s243266: in charge of the docker files locally and in the cloud. Cloud Build for docker images and triggers.
+
+Furthermore, ChatGPT was used in writing the following file: `tests/performancetests/locustfile.py`.

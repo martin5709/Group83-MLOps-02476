@@ -171,7 +171,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
             # Part 1 -- Give the discriminator a head start against the generator
             for j in range(k_discriminator):
                 # Generate random latent space noise
-                z = torch.randn(temp_batch_size, latent_space_size)
+                z = torch.randn(temp_batch_size, latent_space_size).to(DEVICE)
                 z = z.type_as(real_images)
 
                 # Turn the latent space into images
@@ -203,7 +203,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
             dis_model.eval()
 
             # Generate random latent space noise
-            z = torch.randn(temp_batch_size, latent_space_size)
+            z = torch.randn(temp_batch_size, latent_space_size).to(DEVICE)
             z = z.type_as(real_images)
 
             # Tell the discriminator that the data is real, optimise the generator for tricking it.
@@ -218,25 +218,27 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
             # Get idea of loss
             if i % 1000 == 0:
                 print(f"Epoch {epoch}, iter {i}, gen loss: {loss.item()}")
-                z_for_logging = torch.randn(1, latent_space_size)
-                z_for_logging = z_for_logging.type_as(real_images)
-                image_for_logging = gen_model(z_for_logging)
-                # view image in 2d
-                image_for_logging = image_for_logging.view(3, 32, 32).detach().cpu().numpy()
-                image_for_logging = image_for_logging.transpose(1, 2, 0)
-                logging_loss(wandb_active, {"Generated_image": [wandb.Image(image_for_logging)]})
+                if not vertex:
+                    z_for_logging = torch.randn(1, latent_space_size).to(DEVICE)
+                    z_for_logging = z_for_logging.type_as(real_images)
+                    image_for_logging = gen_model(z_for_logging)
+                    # view image in 2d
+                    image_for_logging = image_for_logging.view(3, 32, 32).detach().cpu().numpy()
+                    image_for_logging = image_for_logging.transpose(1, 2, 0)
+                    logging_loss(wandb_active, {"Generated_image": [wandb.Image(image_for_logging)]})
 
-                image = to_pil(image_for_logging)
-                output_path = os.path.join(output_dir, "fake.png")
-                image.save(output_path)
-                prob = get_synth_prob(cnn_det_model, output_path, DEVICE)
-                logging_loss(wandb_active, {"Synthetic prob": prob})
+                    image = to_pil(image_for_logging)
+                    output_path = os.path.join(output_dir, "fake.png")
+                    image.save(output_path)
+                    prob = get_synth_prob(cnn_det_model, output_path, DEVICE)
+                    logging_loss(wandb_active, {"Synthetic prob": prob})
 
 
 
     trained_path = "models"
     if vertex:
         trained_path = gcs_model
+    
     if model_type == 0:
         trained_generator_name = "simple_generator.pth"
         trained_discriminator_name = "simple_discriminator.pth"

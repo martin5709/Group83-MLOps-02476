@@ -417,7 +417,7 @@ For the purposes of reproducability, we can go to the overview tab, and see the 
 - $k\_ discriminator = 3$
 - $learning\_ rate = 4.1 \cdot 10^{-4}$
 
-
+Each of these metrics brings value to the assessment. Synthetic probability gives the probability of the image being AI generated (which acts as the validation of the GAN), the discriminator and generator loss also matter for monitoring purposes, since if one of these keeps growing, it indicates that there is a training imbalance, meaning that one model may never begin truly improving again. Likewise, taking images at frequent intervals are important for checking that modal collapse is not happening.
 
 ### Question 15
 

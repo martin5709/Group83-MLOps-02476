@@ -14,8 +14,8 @@ from torchvision.transforms import ToPILImage
 to_pil = ToPILImage()
 
 # Define model and device configuration
-MODEL_NAME = "simple-generator"
-MODEL_FILE = "simple_generator.pth"
+MODEL_NAME = "advanced-generator"
+MODEL_FILE = "advanced_generator.pth"
 BUCKET_IMG = "0e6b97bf-6590-4dc4-b464-08f9e1cb2ae7"
 BUCKET_MODEL = "mlops-model-repo"
 LATENT_SPACE_SIZE = 1000

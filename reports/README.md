@@ -87,7 +87,7 @@ will check the repositories and the code to verify your answers.
 * [X] Create a FastAPI application that can do inference using your model (M22)
 * [X] Deploy your model in GCP using either Functions or Run as the backend (M23)
 * [X] Write API tests for your application and setup continues integration for these (M24)
-* [ ] Load test your application (M24)
+* [X] Load test your application (M24)
 * [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
 * [ ] Create a frontend for your API (M26)
 
@@ -107,9 +107,9 @@ will check the repositories and the code to verify your answers.
 * [ ] Write some documentation for your application (M32)
 * [ ] Publish the documentation to GitHub Pages (M32)
 * [ ] Revisit your initial project description. Did the project turn out as you wanted?
-* [ ] Create an architectural diagram over your MLOps pipeline
+* [X] Create an architectural diagram over your MLOps pipeline
 * [ ] Make sure all group members have an understanding about all parts of the project
-* [ ] Uploaded all your code to GitHub
+* [X] Uploaded all your code to GitHub
 
 ## Group information
 
@@ -228,6 +228,20 @@ In general, the Cookiecutter template was proven useful, as it set up directorie
 >
 > Answer:
 
+We implimented a pre-commit.yaml file which checks if the code follows the PEP8 standard.
+We added some exceptions to this, e.g. in train.py we had dependencies which the linter could not find, so we allowed them not to be checked by said linter.
+The linter in question was ruff.
+The pre-commit.yaml file automatically format the code after the first commit.
+Lastly we implemented a github action which checks the code format, we decided not to make this a required action to merge with main.
+
+
+We implimented a pre-commit.yaml file which checks if the code follows the PEP8 standard.
+We added some exceptions to this, e.g. in train.py we had dependencies which the linter could not find, so we allowed them not to be checked by said linter.
+The linter in question was ruff.
+The pre-commit.yaml file automatically format the code after the first commit.
+Lastly we implemented a github action which checks the code format, we decided not to make this a required action to merge with main.
+
+
 
 ## Version control
 
@@ -246,6 +260,17 @@ In general, the Cookiecutter template was proven useful, as it set up directorie
 >
 > Answer:
 
+We implemented unit tests for the api, data, model, monitoring and training.
+for the api, using a post operation, we test whether the model can generate an image from a sentence.
+
+For the data we first test whether the dataset is of the correct type, then we test the expected dataset sizes and that each element within a dataloader is of the expected instance, and lastly we check that normalization occurs as expected.
+
+The model tests that the generator class can be initialized properly, and that it output is appropriate given two distinct inputs.
+
+Monitoring tests that we get an OK repsonse from report generated using data-drift-report.
+
+Training tests that Hydra works as expected.
+
 --- question 7 fill here ---
 
 ### Question 8
@@ -261,7 +286,11 @@ In general, the Cookiecutter template was proven useful, as it set up directorie
 >
 > Answer:
 
---- question 8 fill here ---
+Code covereage is displayed as a badge in the repository
+![alt text](image.png)
+*Note* screenshot taken at 12:52 on Jan 24., so this may be a bit wrong, but hopefully not.
+
+Even if we had gone to 100\% code coverage, this could not have gauranteed that we would have no errors. Edge cases exists, and we have certainly not gone out of our way in an attempt to find them in this project. Additionally coverage can only address what we test, and there are definitely more tests that could be added still.
 
 ### Question 9
 
@@ -462,6 +491,7 @@ In our project, we have made use of the following GCP Services:
 
 * Monitoring -- We used this for giving alerts in case of oddities during training of models, or when deployment begins to error.
 
+
 ### Question 18
 
 > **The backbone of GCP is the Compute engine. Explained how you made use of this service and what type of VMs**
@@ -486,7 +516,11 @@ If we were to have used the Compute Engine, we would have used it for model trai
 >
 > Answer:
 
---- question 19 fill here ---
+We have several buckets, so we will show the one with our DVC data in it:
+
+![Bucket Overview](figures/BucketOverview.png)
+
+![Data Bucket](figures/DataBucket.png)
 
 ### Question 20
 
@@ -495,7 +529,9 @@ If we were to have used the Compute Engine, we would have used it for model trai
 >
 > Answer:
 
-![Docker images](figures/docker-images.png)
+![Artifact Repository](figures/ArtifactRepository.png)
+
+![Artifact Repository Details](figures/ArtifactRepoDetails.png)
 
 ### Question 21
 
@@ -504,7 +540,9 @@ If we were to have used the Compute Engine, we would have used it for model trai
 >
 > Answer:
 
-![Build history](figures/build-history.png)
+![Cloud Build History Part 1](figures/CloudBuildHistory1.png)
+
+![Cloud Build History Part 2](figures/CloudBuildHistory2.png)
 
 ### Question 22
 
@@ -613,7 +651,7 @@ However, just to get a feeling of how to acutally implemenent monitoring, we did
 ```sh
 curl -X GET "https://data-drift-report-generator-5307485050.europe-west1.run.app/report?n=<N-IMAGES>" --output report.html
 ```
-where `<N-IMAGES>` is the the number of images from the two sets to compare, or a call to `test_monitoring.py` in the tests folder. Downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. The variable `n` is how many images to take into this report (using all 50000 images in our training data takes a while, so we just select a subsample to actually report on).
+where `<N-IMAGES>` is the the number of images from the two sets to compare. It can also be called from `test_monitoring.py` in the tests folder. The script downloads the current and previous versions of of our training data, from our dvc-bucket, and creates a report using `evidently`. In general we do not recommend using a large `n`, since the code is quite unoptimized, which is also why we chose subsampling in the first place.
 As discussed in the dvc-part of the report, we never really used dvc, since we never changed our dataset. So right now this report just tries to detect drift between CIFAR-10 and CIFAR-100. The report compares the 512 features from the CLIP-model, as in the exercises.
 
 In the future we imagine this feature could be useful when acually expandning training data, in askin how similar two sets actually are.
@@ -635,7 +673,11 @@ In the future we imagine this feature could be useful when acually expandning tr
 >
 > Answer:
 
---- question 27 fill here ---
+With regards to credits, as of 11:20 on Friday, we have spent a total of $ 3.57\, \$ $ in Google Cloud. We expect this number to be slightly wrong, since a group member decided to do GPU training in Vertex AI the night before this, and the billing report only shows $ 0.08\, \$ $ spent on Vertex AI.
+
+The bulk of our credits where spent in Storage $( 2.37\, \$ ) $ and Artifact Registry $( 0.87\, \$)$, the rest is some mix of Vertex AI, Compute Engine an Cloud Run.
+
+Overall working in the cloud is a somewhat frustating experience, but well worth the satisfaction, when you finally get your pibeline set up, and everything starts communicating.
 
 ### Question 28
 
@@ -668,7 +710,23 @@ In the future we imagine this feature could be useful when acually expandning tr
 >
 > Answer:
 
---- question 29 fill here ---
+### *Diagram of project*
+![hello](figures/MLOps_project_diagram.jpg)
+
+Our diagram is split into 5 colored regions, essentially just categorizing services we have used. Between services we have arrows. Starting at *Group 83* (the laptop left-center) it is possible to follow journeys of colored arrows through the landscape.
+
+**Models and code flow**
+In the local setup group members can work on individual branches of new features, once a feature is finished a pull request is sent to Github, where unit tests (and other standarizations) are run. If everything passes the members branch is merged into the main branch.
+
+On this the model flow is triggered. Cloud build starts building new docker images, which are stored in the artifact registry (we currently have 3, one for each of training, API and monitoring). The training image contains information on training loop and model, it is however missing hyperparameters, such as batch size and learning rate.
+
+When we wish to train a new model, a config file containing hyperparameters are sent to Vertex AI, which then pulls a training image from our Artifact Registry and Data from a Cloud Bucket, and trains a new model. This trained model is the stored in a bucket, where it awaits use. During all of this either Hydra or Wandb (which is chosen is a group member preference) keeps track of performed experiments (in the case of Wandb, models are also stored in a seperate registry, but this is mainly an artifact of code being writting in parallel).
+
+The most recent trained model is ready for use, and is grabbed by our cloud run application, which also loads the other two images in the registry. The most recent model is now online, and potential users can interact with it through the API.
+
+**Data flow**
+Data is pushed from the local setup to a Cloud Bucket, DVC ensures we keep track of versioning. The newest version of the data is accessed by Vertex AI during training. Data is also accessed by our Data Drift Monitor, which is setup such that, when requested, it sends a report on data drift, comparing the most recent data set added to the bucket to the previous one.
+
 
 ### Question 30
 
@@ -682,7 +740,20 @@ In the future we imagine this feature could be useful when acually expandning tr
 >
 > Answer:
 
---- question 30 fill here ---
+
+Large struggles was keeping up with version control, this included not just which package to import and their versions but also ensuring everyone had access to dvc, wandb and so forth.
+
+Large amount of times were dedicated to connect different services which also was hard to debug and the debugging process itself was error prone, as machines sometimes tend to differ in subtle ways.
+
+We also saw some problems in the subtlety between git and github when using the command line, e.g. some commands are not available just using git and the workflow of github took a while to setup.
+
+A challenge of this project was getting docker containers to run in the cloud. The reason for this struggle was 3-fold. For one, building docker containers just takes a while, for us this means that any debugging just took ages, as a single deplyment to the cloud could take upto 25 minutes, before we got our error message, and could revisit the problem.
+
+The second reason lies in reading logs from Google Cloud, when looking back at it, this should definitely not have been an issue at all, but for some reason the new UI just made the entire process of actually tracking down errors became more difficult than usual.
+
+The last reason is a specific error in configuring service accounts, we did not realise that accessing stuff from a bucket in cloud run was done from a service account, which did not have access to buckets. Much time was spent debugging this.
+
+To overcome this challenge we used TA's. They're a great resource when you're completely clueless of what an error could be, and were a great help in pointing out what we needed to look out for, when debugging on our own.
 
 ### Question 31
 
@@ -701,3 +772,6 @@ In the future we imagine this feature could be useful when acually expandning tr
 > Answer:
 
 --- question 31 fill here ---
+s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template which martin setup), did profiling on the train and setup the first iteration of the dataloader and data class.
+
+s203822: In general in charge of a lot of different tasks and infrastructure. The biggest of these being the Vertex AI management, hydra and typer configs, the model and training development, and GitHub actions for testing.

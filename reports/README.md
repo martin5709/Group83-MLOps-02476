@@ -264,8 +264,6 @@ Monitoring tests that we get an OK repsonse from report generated using data-dri
 
 Training tests that Hydra works as expected.
 
---- question 7 fill here ---
-
 ### Question 8
 
 > **What is the total code coverage (in percentage) of your code? If your code had a code coverage of 100% (or close**
@@ -768,4 +766,8 @@ To overcome this challenge we used TA's. They're a great resource when you're co
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
---- question 31 fill here ---
+s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template which martin setup), did profiling on the train and setup the first iteration of the dataloader and data class.
+
+s203822: In general in charge of a lot of different tasks and infrastructure. The biggest of these being the Vertex AI management, hydra and typer configs, the model and training development, and GitHub actions for testing.
+
+s243266: in charge of the docker file for training, Google Cloud Artifact and image building triggers.

@@ -233,8 +233,6 @@ The pre-commit.yaml file automatically format the code after the first commit.
 Lastly we implemented a github action which checks the code format, we decided not to make this a required action to merge with main.
 
 
---- question 6 fill here ---
-
 ## Version control
 
 > In the following section we are interested in how version control was used in your project during development to
@@ -262,8 +260,6 @@ The model tests that the generator class can be initialized properly, and that i
 Monitoring tests that we get an OK repsonse from report generated using data-drift-report.
 
 Training tests that Hydra works as expected.
-
---- question 7 fill here ---
 
 ### Question 8
 
@@ -447,7 +443,6 @@ We ensured that actions on github, which included linter checks and unit tests w
 
 Right after training, we profiled the code but time constraints did not allow us to make the code faster.
 
---- question 16 fill here ---
 
 ## Working in the cloud
 
@@ -683,7 +678,7 @@ Overall working in the cloud is a somewhat frustating experience, but well worth
 >
 > Answer:
 
---- question 28 fill here ---
+We did not implement anything not discussed in a previous question.
 
 ### Question 29
 
@@ -761,7 +756,10 @@ To overcome this challenge we used TA's. They're a great resource when you're co
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
---- question 31 fill here ---
-s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template which martin setup), did profiling on the train and setup the first iteration of the dataloader and data class.
+s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template), did profiling on the train and setup the first iteration of the dataloader and data class.
 
 s203822: In general in charge of a lot of different tasks and infrastructure. The biggest of these being the Vertex AI management, hydra and typer configs, the model and training development, and GitHub actions for testing.
+
+s205717: Designated local tester, as the only group member with a GPU to train the very early models on, and the only one with a powerful enough pc to build docker images in a reasonable time. Unittesting of API's. Worked on model API and data drift monitoring API.
+
+s203768: Set up Wandb sweeping agent + artifact registry (which we never really used). Worked on model API and data drift monitoring API. Load test of model API. Attempted evaluation with CNNDetection.

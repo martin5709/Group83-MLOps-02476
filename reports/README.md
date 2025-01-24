@@ -471,7 +471,7 @@ In our project, we have made use of the following GCP Services:
 
 We did not use Google Cloud's Compute Engine for our project, since many of the other Google Cloud services, such as Vertex AI, Cloud Build, etc. covered our use case more effectively than the Compute Engine.
 
-If we were to have used 
+If we were to have used the Compute Engine, we would have used it for model training with GPU Acceleration, where we would have setup our project akin to how it is setup in the GitHub actions (installing the requirements, etc.) and then manually running the train command with the config: `python src/group83_mlops/train.py train-hydra --experiment=exp3`, where the experiment has been changed to match the desired experiment, and then using the shared google bucket mount with `/gcs/bucket_name` to upload the model pickles at the end.
 
 ### Question 19
 

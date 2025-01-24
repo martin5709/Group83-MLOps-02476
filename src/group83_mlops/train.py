@@ -10,6 +10,7 @@ import group83_mlops.adv_model
 from group83_mlops.data import cifar100, cifar100_test
 import subprocess
 import platform
+import multiprocessing
 
 # Loading the model from CNNDetect
 import sys
@@ -135,7 +136,11 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
         main_dataset = cifar100_test()
     else:
         main_dataset = cifar100()
-    main_dataloader = torch.utils.data.DataLoader(main_dataset, batch_size=batch_size)
+    threads = multiprocessing.cpu_count() # On my laptop, this reports the number of threads, rather than the core count.
+    chosen = min(threads//2, 8)
+    print(f"Detected {threads} threads.")
+    print(f"Chose {chosen} threads.")
+    main_dataloader = torch.utils.data.DataLoader(main_dataset, batch_size=batch_size, num_workers=chosen)
 
     # Setup all concerning generator model
     if model_type == 0:

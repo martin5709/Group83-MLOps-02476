@@ -722,3 +722,4 @@ We also saw some problems in the subtlety between git and github when using hte 
 > Answer:
 
 --- question 31 fill here ---
+s205421: in charge of creating pre-commit.yaml files, making actions on github, setup cookie cutter project (we later pivoted to another template which martin setup), did profiling on the train and setup the first iteration of the dataloader and data class.

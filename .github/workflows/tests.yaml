@@ -5,15 +5,23 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - main
+    paths:
+      - "**/*.py"
+      - "**/*.yaml"
+      - "**/*.dvc"
+      - "**/*.json"
+      - "**/*.sh"
+      - "**/*.ps1"
+      - "**/*.toml"
 
 jobs:
   test:
     runs-on: ${{ matrix.operating-system }}
-    timeout-minutes: 10
+    timeout-minutes: 20
     strategy:
       matrix:
-        operating-system: ["ubuntu-latest"]
-        python-version: ["3.11"]
+        operating-system: ["windows-latest", "ubuntu-latest"]
+        python-version: ["3.11", "3.12"]
 
     steps:
       - name: Checkout code
@@ -46,18 +54,4 @@ jobs:
       - name: Run tests & coverage
         run: |
           coverage run -m pytest tests/
-          if [ -e .coverage ]
-          then
-              echo "Coverage File Was Created Successfully!"
-          else
-              echo "Coverage File Missing!"
-          fi
           coverage report -i -m --data-file=.coverage
-          coverage report -i -m --data-file=.coverage > TestCoverage.txt
-
-      - name: Upload coverage as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-txt
-          path: ./TestCoverage.txt
-          retention-days: 5

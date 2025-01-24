@@ -5,9 +5,11 @@ import os
 import hydra
 from torch import nn
 from torchvision.transforms import ToPILImage
-from group83_mlops.model import Generator, Discriminator
+import group83_mlops.model
+import group83_mlops.adv_model
 from group83_mlops.data import cifar100, cifar100_test
 import subprocess
+import platform
 
 # Loading the model from CNNDetect
 import sys
@@ -17,6 +19,7 @@ from resnet import resnet50  # noqa: E402
 from fun import get_synth_prob # noqa: E402
 
 gcs_data = '/gcs/1797480b-392d-46d1-be40-af7e3b95936b/data/processed'
+gcs_model = '/gcs/mlops-model-repo'
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 app = typer.Typer()
@@ -27,7 +30,11 @@ output_dir = "CNNDetection/tmp"
 cnn_det_model = resnet50(num_classes=1)
 cnn_model = "CNNDetection/weights/blur_jpg_prob0.5.pth"
 if not os.path.exists(cnn_model):
-    subprocess.call(['sh', './CNNDetection/weights/download_weights.sh'])
+    if platform.system() == "Windows":
+        subprocess.call(['powershell.exe', './CNNDetection/weights/download_weights.ps1'])
+    else:
+        subprocess.call(['sh', './CNNDetection/weights/download_weights.sh'])
+
 state_dict = torch.load("CNNDetection/weights/blur_jpg_prob0.5.pth", map_location='cpu', weights_only=True)
 cnn_det_model.load_state_dict(state_dict['model'])
 cnn_det_model.to(DEVICE)
@@ -44,7 +51,8 @@ def train_hydra(experiment: str = "exp1", quick_test: bool = False, vertex: bool
         latent_space_size = cfg.hyperparameters.latent_space_size
         learning_rate = cfg.hyperparameters.learning_rate
         random_state = cfg.hyperparameters.random_state
-        train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, wandb_active=False, quick_test=quick_test, vertex=vertex)
+        model_type = cfg.hyperparameters.model_type
+        train_core(learning_rate=learning_rate, batch_size=batch_size, epochs=epochs, k_discriminator=k_discriminator, random_state=random_state, latent_space_size=latent_space_size, wandb_active=False, quick_test=quick_test, vertex=vertex, model_type=model_type)
 
 @app.command()
 def train_wandb(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol: str = "Simple_Generators", discol: str = "Simple_Discriminators") -> None:
@@ -97,7 +105,7 @@ def logging_loss(wandb_active, dictlog : dict[any, any]):
     if wandb_active:
         wandb.log(dictlog)
 
-def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False, quick_test: bool = False, vertex: bool = False) -> None:
+def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 10, k_discriminator: int = 3, random_state: int = 42, latent_space_size: int = 1000, gencol:str = "Simple_Generators", discol:str = "Simple_Discirminators", wandb_active: bool = False, quick_test: bool = False, vertex: bool = False, model_type: int = 0) -> None:
 
     """Training step for the GAN.
 
@@ -113,6 +121,7 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     wandb_active -- Is wandb logging to be used or not?
     quick_test -- Use a smaller dataset for pytest?
     vertex -- Is vertex being used? If so, load the data from the gcs directory
+    model_type -- Which model type to use?
     """
 
     # Fix random state to ensure reproducability.
@@ -129,12 +138,18 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     main_dataloader = torch.utils.data.DataLoader(main_dataset, batch_size=batch_size)
 
     # Setup all concerning generator model
-    gen_model = Generator(latent_space_size=latent_space_size).to(DEVICE)
+    if model_type == 0:
+        gen_model = group83_mlops.model.Generator(latent_space_size=latent_space_size).to(DEVICE)
+    else:
+        gen_model = group83_mlops.adv_model.Generator(latent_space_size=latent_space_size).to(DEVICE)
     gen_loss = nn.BCELoss()
     gen_opt = torch.optim.Adam(gen_model.parameters(), lr=learning_rate)
 
     # Setup all concerning discriminator model
-    dis_model = Discriminator().to(DEVICE)
+    if model_type == 0:
+        dis_model = group83_mlops.model.Discriminator().to(DEVICE)
+    else:
+        dis_model = group83_mlops.adv_model.Discriminator().to(DEVICE)
     dis_loss = nn.BCELoss()
     dis_opt = torch.optim.Adam(dis_model.parameters(), lr=learning_rate)
 
@@ -214,8 +229,14 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
 
 
     trained_path = "models"
-    trained_generator_name = "simple_generator.pth"
-    trained_discriminator_name = "simple_discriminator.pth"
+    if vertex:
+        trained_path = gcs_model
+    if model_type == 0:
+        trained_generator_name = "simple_generator.pth"
+        trained_discriminator_name = "simple_discriminator.pth"
+    else:
+        trained_generator_name = "advanced_generator.pth"
+        trained_discriminator_name = "advanced_discriminator.pth"
     tg = trained_path + "/" + trained_generator_name
     td = trained_path + "/" + trained_discriminator_name
     torch.save(gen_model.state_dict(), tg)
@@ -226,9 +247,10 @@ def train_core(learning_rate: float = 2e-5, batch_size: int = 64, epochs: int = 
     finalise_wandb(wandb_active, run, tg, td, gencol, discol)
 
     # Remove the large models from local machine
-    os.remove(tg)
-    os.remove(td)
-    os.remove(output_path)
+    if not vertex:
+        os.remove(tg)
+        os.remove(td)
+        os.remove(output_path)
 
 if __name__ == "__main__":
     app()
